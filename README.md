@@ -6,13 +6,13 @@ Theseus keeps the pipeline moving, drafts follow-ups and proposals, runs the wee
 
 It was built for [MWS Consulting](https://mwsconsulting.studio) and released under the MIT license so other small studios can run their own.
 
-> **Status: early.** The knowledge graph is in. The skills, browser setup, website starter and CRM stack are being built in the open. See [docs/ROADMAP.md](docs/ROADMAP.md).
+> **Status: early.** Knowledge graph v1.2 is in (44 topics). The skills, browser setup, website starter and CRM stack are being built in the open. See [docs/ROADMAP.md](docs/ROADMAP.md).
 
 ## What's in here
 
 | Folder | What it holds | Status |
 |---|---|---|
-| `knowledge/` | The business knowledge graph (JSON) and its schema | v1.1 in, v1.2 in progress |
+| `knowledge/` | The business knowledge graph (JSON) and its schema | v1.2 done |
 | `skills/` | Agent skills (`SKILL.md` folders): running the business, using the graph, building websites, browsing | In progress |
 | `tools/` | Graph checker and pre-push secret scanner | Done |
 | `starter/` | An Astro starter for standard small-business sites | Planned |

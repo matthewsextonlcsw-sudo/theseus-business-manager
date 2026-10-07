@@ -2,9 +2,9 @@
 
 Built in the open, in this order.
 
-## 1. Knowledge graph v1.2
+## 1. Knowledge graph v1.2 (done)
 
-Expand the original 25-topic graph so it can run a studio, not just advise one:
+Expanded the original 25-topic graph to 44 so it can run a studio, not just advise one:
 
 - **The business itself:** a profile topic built from the studio's public service facts, so answers use real offers and real limits
 - **Running it:** operating rhythm, decision rights, cash and collections, project delivery, scope and change requests, capacity, CRM upkeep, speed to lead

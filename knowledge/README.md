@@ -4,8 +4,12 @@ Theseus's business knowledge is a small graph in JSON. Each **node** is one topi
 
 | File | What it is |
 |---|---|
-| `business-operating.v1.1.grag.json` | The original BusinessMasteryGraphRAG, kept unchanged |
-| `business-operating.grag.json` | The current version Theseus uses (v1.2, in progress) |
+| `business-operating.v1.1.grag.json` | The original BusinessMasteryGraphRAG (25 topics), kept unchanged |
+| `business-operating.grag.json` | v1.2, the version Theseus uses: 44 topics, 128 links, about 14K tokens |
+
+v1.2 is generated from v1.1 by `tools/migrate_v1_2.py`, so every change is readable in one place. It adds a business profile, the manager's operating rhythm and decision rights, cash flow, delivery, scope, capacity, CRM upkeep, speed to lead, local visibility, reviews, managed AI delivery, rules for regulated clients, and website building. Rules from outside sources (Google, the FTC, NASW, WCAG, Core Web Vitals) were checked against those sources on 2026-10-07.
+
+To run a different business, replace the `studio_profile` node with your own public facts.
 
 ## Shape
 
