@@ -33,6 +33,14 @@ It was built for [MWS Consulting](https://mwsconsulting.studio) and released und
 - It does not solve CAPTCHAs or disguise itself to get past bot checks. When a site challenges it, it stops and asks.
 - For licensed and regulated clients (therapists, medical practices), their professional rules come first. That covers testimonials, patient data and outcome claims.
 
+## Install into DSH NEXT
+
+```bash
+bash tools/install-dsh-next.sh        # copies skills + graph into ~/.dsh-next/skills
+```
+
+Then append the section in [brief/business-manager.md](brief/business-manager.md) to the agent's standing brief (`~/.dsh-next/AGENTS.md`), with your business name. Other harnesses that read `SKILL.md` folders can load the same `skills/` directory.
+
 ## Checking the work
 
 ```bash
