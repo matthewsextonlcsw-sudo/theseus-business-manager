@@ -1,0 +1,34 @@
+# Secrets and local settings never leave the machine
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+secrets/
+keys/
+.scan-secrets.local
+
+# Browser profiles, sessions and captures (they can hold cookies and logins)
+.agent-browser/
+browser-profile/
+profiles/
+sessions/
+screenshots/
+*.har
+
+# Build and dependency output
+node_modules/
+dist/
+.astro/
+.cache/
+coverage/
+__pycache__/
+*.pyc
+.venv/
+
+# OS and editor noise
+.DS_Store
+.idea/
+.vscode/
+*.swp
