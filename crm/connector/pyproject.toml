@@ -1,0 +1,9 @@
+[project]
+name = "theseus-crm-connector"
+version = "0.1.0"
+description = "Takes website leads and Chatwoot chats, files leads in Twenty, and asks a local model for replies."
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

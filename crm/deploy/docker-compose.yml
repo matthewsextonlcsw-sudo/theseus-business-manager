@@ -1,0 +1,150 @@
+# The CRM stack: Caddy (HTTPS) in front of Twenty, Chatwoot and the connector.
+# Only Caddy publishes ports. Each service reads only its own settings file in env/.
+name: mws-crm
+
+x-chatwoot: &chatwoot
+  image: chatwoot/chatwoot:v4.18.0
+  env_file: env/chatwoot.env
+  environment:
+    NODE_ENV: production
+    RAILS_ENV: production
+    INSTALLATION_ENV: docker
+    POSTGRES_HOST: chatwoot-db
+    POSTGRES_USERNAME: postgres
+    POSTGRES_DATABASE: chatwoot
+    REDIS_URL: redis://chatwoot-redis:6379
+  volumes:
+    - chatwoot-storage:/app/storage
+  depends_on:
+    - chatwoot-db
+    - chatwoot-redis
+  restart: unless-stopped
+
+services:
+  caddy:
+    image: caddy:2.11.6
+    env_file: env/caddy.env
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    restart: unless-stopped
+
+  twenty-server:
+    image: twentycrm/twenty:v2.45.0
+    env_file: env/twenty.env
+    environment:
+      NODE_PORT: "3000"
+      REDIS_URL: redis://twenty-redis:6379
+      STORAGE_TYPE: local
+    volumes:
+      - twenty-local-data:/app/packages/twenty-server/.local-storage
+    depends_on:
+      twenty-db:
+        condition: service_healthy
+      twenty-redis:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:3000/healthz
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  twenty-worker:
+    image: twentycrm/twenty:v2.45.0
+    env_file: env/twenty.env
+    command: ["yarn", "worker:prod"]
+    environment:
+      REDIS_URL: redis://twenty-redis:6379
+      STORAGE_TYPE: local
+      DISABLE_DB_MIGRATIONS: "true"
+      DISABLE_CRON_JOBS_REGISTRATION: "true"
+    volumes:
+      - twenty-local-data:/app/packages/twenty-server/.local-storage
+    depends_on:
+      twenty-db:
+        condition: service_healthy
+      twenty-server:
+        condition: service_healthy
+    restart: unless-stopped
+
+  twenty-db:
+    image: postgres:16
+    env_file: env/twenty.env
+    environment:
+      POSTGRES_DB: default
+      POSTGRES_USER: postgres
+    volumes:
+      - twenty-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U postgres -h localhost -d postgres
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  twenty-redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--maxmemory-policy", "noeviction"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  chatwoot-rails:
+    <<: *chatwoot
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["bundle", "exec", "rails", "s", "-p", "3000", "-b", "0.0.0.0"]
+
+  chatwoot-sidekiq:
+    <<: *chatwoot
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+
+  chatwoot-db:
+    image: pgvector/pgvector:pg16
+    env_file: env/chatwoot.env
+    environment:
+      POSTGRES_DB: chatwoot
+      POSTGRES_USER: postgres
+    volumes:
+      - chatwoot-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  chatwoot-redis:
+    image: redis:7.4-alpine
+    env_file: env/chatwoot.env
+    command: ["sh", "-c", "redis-server --requirepass \"$$REDIS_PASSWORD\""]
+    volumes:
+      - chatwoot-redis-data:/data
+    restart: unless-stopped
+
+  connector:
+    build:
+      context: ../..
+      dockerfile: crm/connector/Dockerfile
+    env_file: env/connector.env
+    environment:
+      TWENTY_URL: http://twenty-server:3000
+      CHATWOOT_URL: http://chatwoot-rails:3000
+      DATA_DIR: /data
+    volumes:
+      - connector-data:/data
+    profiles: ["connector"]
+    restart: unless-stopped
+
+volumes:
+  caddy-data:
+  caddy-config:
+  twenty-local-data:
+  twenty-db-data:
+  chatwoot-storage:
+  chatwoot-db-data:
+  chatwoot-redis-data:
+  connector-data:

@@ -1,0 +1,39 @@
+# HTTPS for the three web addresses. Caddy gets and renews certificates on its own.
+{
+	email {$ACME_EMAIL}
+}
+
+(security) {
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+{$CRM_HOST} {
+	import security
+	encode zstd gzip
+	reverse_proxy twenty-server:3000
+}
+
+{$CHAT_HOST} {
+	import security
+	encode zstd gzip
+	reverse_proxy chatwoot-rails:3000
+}
+
+{$LEADS_HOST} {
+	import security
+	request_body {
+		max_size 64KB
+	}
+	@open path /lead /chatwoot/webhook /health
+	handle @open {
+		reverse_proxy connector:8080
+	}
+	handle {
+		respond 404
+	}
+}
