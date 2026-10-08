@@ -46,8 +46,15 @@ if [ "$starting" -eq 0 ] && ! control_up && [ ! -w "$state" ]; then
   exit 3
 fi
 
+chrome_running() { pgrep -f -- "--user-data-dir=$state/profile" >/dev/null 2>&1; }
+
 export HOME="$state"
 if [ "$starting" -eq 1 ]; then
+  if control_up && chrome_running; then
+    # Never reset a healthy browser: the agent may be in the middle of using it.
+    echo "Browser already running."
+    exit 0
+  fi
   # Clear any control process left behind by an earlier failed start, then launch fresh.
   agent-browser close --all >/dev/null 2>&1 || true
 fi
