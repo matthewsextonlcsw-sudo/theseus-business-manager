@@ -1,0 +1,52 @@
+---
+import { site } from '../data/site';
+
+// A real form only when it has somewhere to go. Otherwise, a plain call and email path.
+const telHref = `tel:${site.phone.replace(/[^\d+]/g, '')}`;
+---
+{site.formAction ? (
+  <form class="contact-form" method="post" action={site.formAction}>
+    <p>{site.afterContact}</p>
+    <div class="field">
+      <label for="cf-name">Your name</label>
+      <input id="cf-name" name="name" autocomplete="name" required />
+    </div>
+    <div class="field">
+      <label for="cf-contact">Best email or phone</label>
+      <input id="cf-contact" name="contact" autocomplete="email" required />
+    </div>
+    <div class="field">
+      <label for="cf-time">Best time to reach you (optional)</label>
+      <input id="cf-time" name="preferred_time" />
+    </div>
+    <div class="field">
+      <label for="cf-message">What can we help with? (optional)</label>
+      <textarea id="cf-message" name="message" rows="4" aria-describedby={site.regulated ? 'cf-health-note' : undefined}></textarea>
+      {site.regulated && (
+        <p id="cf-health-note" class="muted">Please don't include health details here. We'll talk about that privately.</p>
+      )}
+    </div>
+    <div class="trap" aria-hidden="true">
+      <label for="cf-website">Leave this empty</label>
+      <input id="cf-website" name="website" tabindex="-1" autocomplete="off" />
+    </div>
+    <button class="button" type="submit">{site.primaryAction.label}</button>
+  </form>
+) : (
+  <div class="contact-paths">
+    <p>{site.afterContact}</p>
+    <p><a class="button" href={telHref}>Call {site.phone}</a></p>
+    <p>Or email <a href={`mailto:${site.email}`}>{site.email}</a></p>
+  </div>
+)}
+
+<style>
+  .contact-form { display: grid; gap: var(--space-3); max-width: 36rem; }
+  .field { display: grid; gap: var(--space-1); }
+  label { font-weight: 600; }
+  input, textarea {
+    font: inherit; padding: var(--space-2) var(--space-3); min-height: var(--tap);
+    border: 1px solid var(--color-muted); border-radius: var(--radius); background: var(--color-bg); color: var(--color-text);
+  }
+  .trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+</style>

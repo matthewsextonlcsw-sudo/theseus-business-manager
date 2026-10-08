@@ -18,6 +18,12 @@ done
 mkdir -p "$DEST/use-the-graph/references"
 cp "$ROOT/knowledge/business-operating.grag.json" "$DEST/use-the-graph/references/"
 
+# The Standard-tier starter travels with build-a-site (source only, no installed packages or builds).
+if [ -d "$ROOT/starter" ] && [ -d "$DEST/build-a-site" ]; then
+  mkdir -p "$DEST/build-a-site/assets"
+  rsync -a --exclude node_modules --exclude dist --exclude .astro "$ROOT/starter/" "$DEST/build-a-site/assets/starter/"
+fi
+
 echo "Installed into $DEST:"
 for d in "$DEST"/*/; do echo "  $(basename "$d")"; done
 python3 "$DEST/use-the-graph/scripts/graph.py" list | wc -l | awk '{print "  graph reachable: " $1 " topics"}'

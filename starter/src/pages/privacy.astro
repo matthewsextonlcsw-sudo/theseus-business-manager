@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+---
+<Base title={`Privacy | ${site.name}`} description={`How ${site.name} handles the information you send through this website.`}>
+  <section class="section" aria-labelledby="privacy-heading">
+    <div class="wrap">
+      <h1 id="privacy-heading">Privacy</h1>
+      <p>This site collects only what you choose to send us: your name, how to reach you, and your message. We use it to answer you and for nothing else. We don't sell it or share it for advertising.</p>
+      {site.regulated && (
+        <p>Please don't send health information through this website. This site is not a secure channel for medical or mental health details; we'll discuss those with you privately.</p>
+      )}
+      <p>To ask what we hold about you or to have it deleted, email <a href={`mailto:${site.email}`}>{site.email}</a>.</p>
+    </div>
+  </section>
+</Base>

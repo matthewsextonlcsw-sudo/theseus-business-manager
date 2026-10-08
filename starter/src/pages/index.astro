@@ -1,0 +1,21 @@
+---
+import Base from '../layouts/Base.astro';
+import Hero from '../components/Hero.astro';
+import Services from '../components/Services.astro';
+import Proof from '../components/Proof.astro';
+import FAQ from '../components/FAQ.astro';
+import { site } from '../data/site';
+---
+<Base title={`${site.name} | ${site.areaServed[0]}`} description={site.description}>
+  <Hero />
+  <Services />
+  <Proof />
+  <FAQ />
+  <section class="section" aria-labelledby="next-heading">
+    <div class="wrap">
+      <h2 id="next-heading">Next step</h2>
+      <p>{site.afterContact}</p>
+      <a class="button" href={site.primaryAction.href}>{site.primaryAction.label}</a>
+    </div>
+  </section>
+</Base>

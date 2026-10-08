@@ -1,0 +1,19 @@
+---
+import { hero, site } from '../data/site';
+---
+<section class="hero section" aria-labelledby="hero-heading">
+  <div class="wrap">
+    <p class="audience">{hero.audience}</p>
+    <h1 id="hero-heading">{hero.headline}</h1>
+    <p class="mechanism">{hero.mechanism}</p>
+    {hero.proofPoint && <p class="proof-point">{hero.proofPoint}</p>}
+    <a class="button" href={site.primaryAction.href}>{site.primaryAction.label}</a>
+  </div>
+</section>
+
+<style>
+  .hero { padding-block: var(--space-6) var(--space-5); }
+  .audience { font-weight: 600; color: var(--color-muted); margin-bottom: var(--space-2); }
+  .mechanism { font-size: var(--font-size-1); }
+  .proof-point { border-left: 3px solid var(--color-accent); padding-left: var(--space-3); }
+</style>

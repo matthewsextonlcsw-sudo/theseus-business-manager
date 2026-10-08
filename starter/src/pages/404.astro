@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../data/site';
+---
+<Base title={`Page not found | ${site.name}`} description="This page doesn't exist.">
+  <section class="section" aria-labelledby="nf-heading">
+    <div class="wrap">
+      <h1 id="nf-heading">Page not found</h1>
+      <p>That page doesn't exist. Try the <a href="/">home page</a>, or <a href={site.primaryAction.href}>{site.primaryAction.label.toLowerCase()}</a>.</p>
+    </div>
+  </section>
+</Base>

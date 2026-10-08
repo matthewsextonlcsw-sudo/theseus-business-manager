@@ -3,6 +3,7 @@
 # Usage: browser <any agent-browser command>     e.g. browser open https://example.com
 #        browser start                           start the browser (run outside the agent sandbox)
 # Settings: visible window, Theseus's own profile, human mouse movement.
+# Automated tests set THESEUS_BROWSER_HEADED=0 to run without a window.
 #
 # Chrome cannot start inside a sandboxed agent shell. So the browser's control process is started
 # once outside the sandbox (by a person, or at login). The agent's commands then reach it through
@@ -50,4 +51,6 @@ if [ "$starting" -eq 1 ]; then
   # Clear any control process left behind by an earlier failed start, then launch fresh.
   agent-browser close --all >/dev/null 2>&1 || true
 fi
-exec agent-browser --headed --profile "$state/profile" --input-mode human --executable-path "$chrome" "$@"
+headed=(--headed)
+[ "${THESEUS_BROWSER_HEADED:-1}" = "0" ] && headed=(--headed false)
+exec agent-browser "${headed[@]}" --profile "$state/profile" --input-mode human --executable-path "$chrome" "$@"

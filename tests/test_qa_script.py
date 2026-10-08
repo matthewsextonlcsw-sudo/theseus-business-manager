@@ -22,6 +22,7 @@ def test_bad_page_fails_with_the_planted_problems(tmp_path: Path) -> None:
         os.environ,
         QA_REGULATED="1",
         THESEUS_BROWSER_HOME=str(tmp_path / "browser"),
+        THESEUS_BROWSER_HEADED="0",
         AGENT_BROWSER_SESSION="qa-test",
     )
     result = subprocess.run(

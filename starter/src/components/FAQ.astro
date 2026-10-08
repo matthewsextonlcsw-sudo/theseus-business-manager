@@ -1,0 +1,22 @@
+---
+import { faqs } from '../data/site';
+---
+{faqs.length > 0 && (
+  <section class="section" aria-labelledby="faq-heading">
+    <div class="wrap">
+      <h2 id="faq-heading">Questions</h2>
+      {faqs.map(([q, a]) => (
+        <details>
+          <summary>{q}</summary>
+          <p>{a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+)}
+
+<style>
+  details { border-bottom: 1px solid var(--color-border); padding-block: var(--space-3); max-width: var(--measure); }
+  summary { cursor: pointer; font-weight: 600; min-height: var(--tap); display: flex; align-items: center; }
+  details p { margin-top: var(--space-2); }
+</style>

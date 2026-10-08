@@ -1,0 +1,16 @@
+---
+import { services } from '../data/site';
+---
+<section class="section section--alt" aria-labelledby="services-heading">
+  <div class="wrap">
+    <h2 id="services-heading">What we do</h2>
+    <div class="grid">
+      {services.map((s) => (
+        <article class="card">
+          <h3>{s.name}</h3>
+          <p>{s.summary}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>

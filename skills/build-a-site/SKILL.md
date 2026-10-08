@@ -10,6 +10,10 @@ A Standard site is solid, clear and fast. It is not a custom design showpiece. I
 
 Before starting, pull the rules with `use-the-graph`: `[website_build_process]`, `[website]`, `[website_ia]`, `[copywriting]`, `[design_fundamentals]`, `[accessibility]`, `[performance_budget]`, `[site_qa_launch]`, `[seo_aeo_foundations]`, and `[local_visibility]` for local businesses. For therapy or medical clients, `[regulated_clients]` overrides the rest.
 
+## The starter
+
+Start every Standard site from `assets/starter` in this skill's folder (full path: `~/.dsh-next/skills/build-a-site/assets/starter`). Copy it into a new folder for the client inside your workspace, then run `npm install` there. Its `README.md` explains the parts. All business facts go in `src/data/site.ts`, and its `[insert ...]` placeholders make QA fail until every one is replaced. Set `regulated: true` for any clinical practice.
+
 ## The gates
 
 Work in this order. At each gate, stop and show Matthew the file or the screenshots. Do not skip ahead.
@@ -19,7 +23,7 @@ Work in this order. At each gate, stop and show Matthew the file or the screensh
 3. **Copy** - real copy for every page in `content/`, from the brief and the client's own facts. Gate: Matthew approves the copy before any design.
 4. **Tokens** - set the type scale, colors, spacing and radius in the starter's `src/styles/tokens.css`. Check every text color against its background.
 5. **Build** - pages from the starter's components, mobile first. JavaScript only where a feature needs it.
-6. **QA** - run `scripts/qa.sh <url>` and fix everything it reports, then run it again. Gate: show Matthew the screenshots and the QA report.
+6. **QA** - build (`npm run build`), serve it (`npm run preview`), run `scripts/qa.sh <url>` on every page (add `QA_REGULATED=1` for clinical practices), fix everything it reports, and run it again. Gate: show Matthew the screenshots and the QA report.
 7. **Launch record** - fill in `references/launch-record-template.md` and hand it over with the accounts and docs.
 
 ## Never ship

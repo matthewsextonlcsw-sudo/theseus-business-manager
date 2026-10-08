@@ -1,0 +1,13 @@
+---
+import Base from '../layouts/Base.astro';
+import ContactForm from '../components/ContactForm.astro';
+import { site } from '../data/site';
+---
+<Base title={`Contact | ${site.name}`} description={`Reach ${site.name}. ${site.afterContact}`}>
+  <section class="section" aria-labelledby="contact-heading">
+    <div class="wrap">
+      <h1 id="contact-heading">Contact</h1>
+      <ContactForm />
+    </div>
+  </section>
+</Base>
