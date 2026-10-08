@@ -24,4 +24,9 @@ const links = [
   .brand { font-weight: 700; font-size: var(--font-size-1); color: var(--color-text); text-decoration: none; margin-right: auto; }
   nav ul { display: flex; gap: var(--space-3); list-style: none; margin: 0; padding: 0; }
   nav a { display: inline-flex; min-height: var(--tap); align-items: center; }
+  /* On phones the hero carries the same action, so the header stays one row. */
+  @media (max-width: 40rem) {
+    .bar { flex-wrap: nowrap; padding-block: var(--space-2); }
+    .bar > .button { display: none; }
+  }
 </style>

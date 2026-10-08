@@ -33,3 +33,6 @@ __pycache__/
 .idea/
 .vscode/
 *.swp
+
+# Local editor and preview settings
+.claude/
