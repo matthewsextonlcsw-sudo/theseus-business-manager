@@ -27,7 +27,7 @@ Chrome can't start inside your sandbox. If a command says the browser isn't runn
 ~/.dsh-next/skills/browse-like-a-person/scripts/browser start
 ```
 
-Once it's up, your commands work normally.
+Once it's up, your commands work normally. Don't work around this by setting `THESEUS_BROWSER_HOME` or pointing the browser at another profile: that swaps out the profile Matthew logs into.
 
 ## Checks for a site
 

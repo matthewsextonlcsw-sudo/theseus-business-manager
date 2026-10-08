@@ -3,30 +3,24 @@
 # Usage: browser <any agent-browser command>     e.g. browser open https://example.com
 #        browser start                           start the browser (run outside the agent sandbox)
 # Settings: visible window, Theseus's own profile, human mouse movement.
-# Chrome cannot start inside a sandboxed agent shell, so the browser is started once outside the
-# sandbox (by a person, or at login), and the agent's commands talk to it through the socket.
-# Override the state folder with THESEUS_BROWSER_HOME.
+#
+# Chrome cannot start inside a sandboxed agent shell. So the browser's control process is started
+# once outside the sandbox (by a person, or at login). The agent's commands then reach it through
+# the control socket, and that outside process launches Chrome whenever it is needed.
 set -euo pipefail
 
 real_home="$HOME"
 state="${THESEUS_BROWSER_HOME:-$real_home/.agent-browser/theseus}"
 mkdir -p "$state/profile" 2>/dev/null || true
 
-browser_running() { pgrep -f -- "--user-data-dir=$state/profile" >/dev/null 2>&1; }
+# macOS caps socket paths at 103 bytes, so the control socket lives in the short temp folder,
+# which the sandbox also allows.
+socket_root="${TMPDIR:-/tmp}"
+export AGENT_BROWSER_SOCKET_DIR="${socket_root%/}/tb-$(id -u)"
+mkdir -p "$AGENT_BROWSER_SOCKET_DIR"
+session="${AGENT_BROWSER_SESSION:-default}"
 
-starting=0
-if [ "${1:-}" = "start" ]; then
-  starting=1
-  set -- open about:blank
-fi
-
-# Inside an agent sandbox the state folder is not writable, and Chrome cannot start there.
-# Refuse instead of leaving a broken control process behind.
-if [ "$starting" -eq 0 ] && ! browser_running && [ ! -w "$state" ]; then
-  echo "The browser isn't running, and it can't be started from inside the agent sandbox." >&2
-  echo "Ask Matthew to start it from a normal Terminal: ~/.dsh-next/skills/browse-like-a-person/scripts/browser start" >&2
-  exit 3
-fi
+control_up() { [ -S "$AGENT_BROWSER_SOCKET_DIR/$session.sock" ] && [ -f "$AGENT_BROWSER_SOCKET_DIR/$session.pid" ]; }
 
 chrome=""
 for candidate in "$real_home"/.agent-browser/browsers/chrome-*/"Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing"; do
@@ -37,15 +31,23 @@ if [ -z "$chrome" ]; then
   exit 2
 fi
 
-# macOS caps socket paths at 103 bytes, so the control socket goes in the short temp folder,
-# which the sandbox also allows.
-socket_dir="${TMPDIR:-/tmp}"
-export AGENT_BROWSER_SOCKET_DIR="${socket_dir%/}/tb-$(id -u)"
-mkdir -p "$AGENT_BROWSER_SOCKET_DIR"
+starting=0
+if [ "${1:-}" = "start" ]; then
+  starting=1
+  set -- open about:blank
+fi
+
+# Inside an agent sandbox the state folder is not writable and Chrome cannot start.
+# Refuse instead of leaving a broken control process behind.
+if [ "$starting" -eq 0 ] && ! control_up && [ ! -w "$state" ]; then
+  echo "The browser isn't running, and it can't be started from inside the agent sandbox." >&2
+  echo "Ask Matthew to start it from a normal Terminal: ~/.dsh-next/skills/browse-like-a-person/scripts/browser start" >&2
+  exit 3
+fi
 
 export HOME="$state"
-if [ "$starting" -eq 1 ] && ! browser_running; then
-  # Clear any control process left behind by an earlier failed start before launching fresh.
+if [ "$starting" -eq 1 ]; then
+  # Clear any control process left behind by an earlier failed start, then launch fresh.
   agent-browser close --all >/dev/null 2>&1 || true
 fi
 exec agent-browser --headed --profile "$state/profile" --input-mode human --executable-path "$chrome" "$@"
