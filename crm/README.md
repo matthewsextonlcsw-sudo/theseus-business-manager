@@ -89,6 +89,21 @@ Everything runs from your own computer with `crm/deploy/deploy.sh`, and nothing 
 
 **Undo:** `deploy.sh down` stops everything and keeps all data in Docker volumes. **Backups:** nightly at 03:15 into `REMOTE_DIR/backups`. `deploy.sh pull-backups` copies them to `~/mws-crm-backups`, and old ones are never deleted automatically.
 
+## Private link to a model at home (optional)
+
+If the model runs on a machine at home, `deploy.sh link` connects it to the CRM server with WireGuard (open source, built into Linux). The home machine calls out to the server, so nothing opens on your home router. The link carries one port:
+- **On the model host:** a relay on `10.77.0.1:<port>` passes to `MODEL_TARGET`, and its firewall allows only that port from the server.
+- **The server** can't reach anything else at home.
+- **Then** set `BRAIN_URL=http://10.77.0.1:<port>/v1`.
+
+```bash
+bash crm/deploy/deploy.sh link        # set up both ends (asks first), then test
+bash crm/deploy/deploy.sh link-check  # handshake, model answers through the link (no AI run), nothing else reachable
+bash crm/deploy/deploy.sh link-off    # remove it from both machines
+```
+
+Settings: `MODEL_SSH` (the model host, a user with passwordless sudo), `MODEL_TARGET` (`ip:port` where the model listens), `LINK_PORT` (UDP, default 51820). With `LINK_LEAVE_TAILSCALE=yes`, the server leaves Tailscale, so the link is its only way in.
+
 ## Email (optional)
 
 The studio's own mail server, in the same stack: [Stalwart](https://github.com/stalwartlabs/stalwart) v0.16.25 (open source, AGPL-3.0). It sends and receives mail directly, signs outgoing mail (DKIM), filters spam, and serves your mail app over IMAP. Caddy serves its web admin at `https://<mail host>/admin`, and the mail ports use Caddy's certificate, copied nightly. Stalwart's own docs describe this setup for servers behind Caddy.

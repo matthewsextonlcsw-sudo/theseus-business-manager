@@ -4,6 +4,8 @@
 #   bash crm/deploy/deploy.sh check          read-only look at the server, DNS, ports and model access
 #   bash crm/deploy/deploy.sh up             install Docker if needed, open 80/443, start Caddy, Twenty, Chatwoot, backups
 #   bash crm/deploy/deploy.sh connect        ask for API keys (hidden), then start the connector
+#   bash crm/deploy/deploy.sh link           optional: private WireGuard link to a model server at home (one port only)
+#   bash crm/deploy/deploy.sh link-off       remove that link from both machines
 #   bash crm/deploy/deploy.sh mail           optional: start the Stalwart mail server and create the mailbox
 #   bash crm/deploy/deploy.sh mail-off       stop the mail server (every message stays)
 #   bash crm/deploy/deploy.sh status         what is running and whether the sites answer
@@ -37,6 +39,7 @@ esac
 
 DEPLOY_DIR="$REMOTE_DIR/crm/deploy"
 remote() { ssh -o BatchMode=yes -o ConnectTimeout=10 "$DEPLOY_SSH" "$@"; }
+model_host() { ssh -o BatchMode=yes -o ConnectTimeout=10 "$MODEL_SSH" "$@"; }
 confirm() {
   printf '\n%s\n\nType yes to continue: ' "$1"
   read -r answer
@@ -49,7 +52,7 @@ cmd_check() {
   echo "== Docker"
   remote 'docker --version 2>/dev/null || echo "not installed (up installs it)"'
   echo "== DNS (each name must point at the server)"
-  server_ip=$(remote "ip -4 route get 1.1.1.1 | awk '{for (i=1;i<=NF;i++) if (\$i==\"src\") print \$(i+1)}'")
+  server_ip=$(remote "ip -4 route get 1.1.1.1 | awk '{for (i=1;i<=NF;i++) if (\$i==\"src\") print \$(i+1)}'" </dev/null)
   echo "server address: $server_ip"
   for host in "$CRM_HOST" "$CHAT_HOST" "$LEADS_HOST"; do
     resolved=$(dig +short A "$host" | tail -1)
@@ -68,7 +71,7 @@ cmd_check() {
     if remote "timeout 6 bash -c '</dev/tcp/gmail-smtp-in.l.google.com/25'" 2>/dev/null; then echo "ok    the server can send mail (port 25 out is open)"; else echo "WAIT  port 25 out is blocked; ask your server host to open it"; fi
   fi
   echo "== Model reachable from the server (an HTTP check of /models, no AI run)"
-  code=$(remote "curl -s -o /dev/null -w '%{http_code}' --max-time 6 '$BRAIN_URL/models'" || true)
+  code=$(remote "curl -s -o /dev/null -w '%{http_code}' --max-time 6 '$BRAIN_URL/models'" </dev/null || true)
   case "$code" in
     200|401) echo "ok    the model server answers (HTTP $code)" ;;
     *) echo "WAIT  no answer from the model server (HTTP ${code:-none}); check the network rule between the servers" ;;
@@ -181,7 +184,7 @@ cmd_mail() {
   for v in MAIL_HOST MAIL_DOMAIN MAILBOX; do
     [ -n "${!v:-}" ] || { echo "deploy.env: set $v to turn email on (see deploy.env.example)"; exit 2; }
   done
-  server_ip=$(remote "ip -4 route get 1.1.1.1 | awk '{for (i=1;i<=NF;i++) if (\$i==\"src\") print \$(i+1)}'")
+  server_ip=$(remote "ip -4 route get 1.1.1.1 | awk '{for (i=1;i<=NF;i++) if (\$i==\"src\") print \$(i+1)}'" </dev/null)
   resolved=$(dig +short A "$MAIL_HOST" | tail -1)
   [ "$resolved" = "$server_ip" ] || { echo "First add the DNS A record $MAIL_HOST -> $server_ip (now: ${resolved:-nothing}). Nothing changed."; exit 1; }
   confirm "This will, on $DEPLOY_SSH:
@@ -241,6 +244,134 @@ run mail again to start it. Mail sent to you while it is off waits at the sender
   remote "cd '$DEPLOY_DIR' && docker compose --profile mail stop stalwart; systemctl disable --now mws-mail-certs.timer 2>/dev/null || true"
 }
 
+# Private link (optional): the model server sits at home behind NAT, so it calls the CRM server over WireGuard.
+# The link carries ONE port: a relay on the model host (10.77.0.1:<port>) passes it to MODEL_TARGET, and the model
+# host's firewall allows nothing else from the link. The CRM server then uses BRAIN_URL=http://10.77.0.1:<port>/v1.
+LINK_SERVER_ADDR=10.77.0.2
+LINK_MODEL_ADDR=10.77.0.1
+
+link_settings() {
+  for v in MODEL_SSH MODEL_TARGET; do
+    [ -n "${!v:-}" ] || { echo "deploy.env: set $v for the private link (see deploy.env.example)"; exit 2; }
+  done
+  link_port="${LINK_PORT:-51820}"
+  target_port="${MODEL_TARGET##*:}"
+  [[ $MODEL_TARGET =~ ^[0-9.]+:[0-9]+$ && $link_port =~ ^[0-9]+$ ]] || { echo "MODEL_TARGET must be ip:port and LINK_PORT a number"; exit 2; }
+}
+
+cmd_link() {
+  link_settings
+  server_ip=$(remote "ip -4 route get 1.1.1.1 | awk '{for (i=1;i<=NF;i++) if (\$i==\"src\") print \$(i+1)}'" </dev/null)
+  leave_ts=""
+  [ "${LINK_LEAVE_TAILSCALE:-no}" = yes ] && leave_ts="
+  - take $DEPLOY_SSH off Tailscale (tailscale logout; tailscaled turned off), so the link is its only way home"
+  confirm "This sets up a private WireGuard link that carries only $MODEL_TARGET:
+  On $DEPLOY_SSH: install wireguard-tools, open UDP $link_port, interface wg-crm ($LINK_SERVER_ADDR)$leave_ts
+  On $MODEL_SSH: install wireguard-tools, interface wg-crm ($LINK_MODEL_ADDR) calling $server_ip:$link_port,
+    a relay $LINK_MODEL_ADDR:$target_port -> $MODEL_TARGET, and one firewall rule: only that port, only from $LINK_SERVER_ADDR
+Undo: bash crm/deploy/deploy.sh link-off"
+
+  # Keys are made on each machine and never leave it; only public keys travel.
+  keygen='set -e; command -v wg >/dev/null || { apt-get update -qq && DEBIAN_FRONTEND=noninteractive apt-get install -y -qq wireguard-tools >/dev/null; }
+    umask 077; mkdir -p /etc/wireguard; [ -s /etc/wireguard/wg-crm.key ] || wg genkey > /etc/wireguard/wg-crm.key
+    wg pubkey < /etc/wireguard/wg-crm.key'
+  server_pub=$(remote "bash -c '$keygen'" </dev/null | tail -1)
+  model_pub=$(model_host "sudo -n bash -c '$keygen'" </dev/null | tail -1)
+  [[ $server_pub =~ ^[A-Za-z0-9+/]{43}=$ && $model_pub =~ ^[A-Za-z0-9+/]{43}=$ ]] || { echo "Could not read both public keys. Nothing else changed."; exit 1; }
+
+  remote "PORT='$link_port' PEER='$model_pub' ADDR='$LINK_SERVER_ADDR' PEER_ADDR='$LINK_MODEL_ADDR' LEAVE_TS='${LINK_LEAVE_TAILSCALE:-no}' bash -s" <<'SERVER'
+set -euo pipefail
+umask 077
+cat > /etc/wireguard/wg-crm.conf <<CONF
+# Private link from the model host (it calls in from behind NAT). Carries one port; see deploy.sh link.
+[Interface]
+Address = $ADDR/32
+ListenPort = $PORT
+PrivateKey = $(cat /etc/wireguard/wg-crm.key)
+
+[Peer]
+PublicKey = $PEER
+AllowedIPs = $PEER_ADDR/32
+CONF
+ufw allow "$PORT/udp" comment 'wg-crm private model link' >/dev/null
+systemctl enable wg-quick@wg-crm >/dev/null 2>&1
+systemctl restart wg-quick@wg-crm
+if [ "$LEAVE_TS" = yes ] && command -v tailscale >/dev/null; then
+  tailscale logout >/dev/null 2>&1 || true
+  systemctl disable --now tailscaled >/dev/null 2>&1 || true
+  echo "left Tailscale"
+fi
+SERVER
+
+  model_host "sudo -n env SERVER='$server_ip' PORT='$link_port' PEER='$server_pub' ADDR='$LINK_MODEL_ADDR' PEER_ADDR='$LINK_SERVER_ADDR' TARGET='$MODEL_TARGET' TPORT='$target_port' bash -s" <<'MODEL'
+set -euo pipefail
+umask 077
+cat > /etc/wireguard/wg-crm.conf <<CONF
+# Private link to the CRM server. This side calls out, so nothing opens on the home router; see deploy.sh link.
+[Interface]
+Address = $ADDR/32
+PrivateKey = $(cat /etc/wireguard/wg-crm.key)
+
+[Peer]
+PublicKey = $PEER
+Endpoint = $SERVER:$PORT
+AllowedIPs = $PEER_ADDR/32
+PersistentKeepalive = 25
+CONF
+umask 022
+cat > /etc/systemd/system/wg-crm-relay.socket <<UNIT
+[Unit]
+Description=Model relay for the CRM server over wg-crm (one port)
+[Socket]
+ListenStream=$ADDR:$TPORT
+FreeBind=true
+[Install]
+WantedBy=sockets.target
+UNIT
+cat > /etc/systemd/system/wg-crm-relay.service <<UNIT
+[Unit]
+Description=Model relay for the CRM server: $ADDR:$TPORT -> $TARGET
+Requires=wg-crm-relay.socket
+After=wg-crm-relay.socket
+[Service]
+ExecStart=/usr/lib/systemd/systemd-socket-proxyd $TARGET
+DynamicUser=yes
+UNIT
+ufw allow in on wg-crm from "$PEER_ADDR" to "$ADDR" port "$TPORT" proto tcp comment 'CRM server -> model relay' >/dev/null
+systemctl daemon-reload
+systemctl enable wg-quick@wg-crm >/dev/null 2>&1
+systemctl restart wg-quick@wg-crm
+systemctl enable --now wg-crm-relay.socket >/dev/null 2>&1
+MODEL
+  cmd_link_check
+}
+
+cmd_link_check() {
+  link_settings
+  echo "== Private model link"
+  hs=""
+  for _ in $(seq 1 10); do
+    hs=$(remote "wg show wg-crm latest-handshakes 2>/dev/null | awk '{print \$2}'" </dev/null || true)
+    [ -n "$hs" ] && [ "$hs" != 0 ] && break
+    sleep 3
+  done
+  if [ -n "$hs" ] && [ "$hs" != 0 ]; then echo "ok    tunnel up (last handshake $(( $(date +%s) - hs )) s ago)"; else echo "FAIL  no handshake yet"; fi
+  code=$(remote "curl -s -o /dev/null -w '%{http_code}' --max-time 8 http://$LINK_MODEL_ADDR:$target_port/v1/models" </dev/null || true)
+  case "$code" in 200|401) echo "ok    the model answers through the link (HTTP $code; no AI run)" ;; *) echo "FAIL  no answer through the link (HTTP ${code:-none})" ;; esac
+  if remote "timeout 4 bash -c '</dev/tcp/$LINK_MODEL_ADDR/22'" 2>/dev/null; then echo "FAIL  other ports on the model host are reachable"; else echo "ok    nothing else on the model host is reachable (port 22 tried)"; fi
+}
+
+cmd_link_off() {
+  link_settings
+  confirm "This removes the private link from $DEPLOY_SSH and $MODEL_SSH (interfaces, relay, firewall rules).
+It does not put $DEPLOY_SSH back on Tailscale; that needs your Tailscale login."
+  remote "systemctl disable --now wg-quick@wg-crm >/dev/null 2>&1; ufw delete allow '${link_port}/udp' >/dev/null 2>&1; rm -f /etc/wireguard/wg-crm.conf; echo 'server side removed'"
+  model_host "sudo -n bash -c 'systemctl disable --now wg-crm-relay.socket wg-crm-relay.service wg-quick@wg-crm >/dev/null 2>&1
+    rm -f /etc/systemd/system/wg-crm-relay.socket /etc/systemd/system/wg-crm-relay.service /etc/wireguard/wg-crm.conf
+    ufw delete allow in on wg-crm from $LINK_SERVER_ADDR to $LINK_MODEL_ADDR port $target_port proto tcp >/dev/null 2>&1
+    systemctl daemon-reload; echo model side removed'"
+}
+
 cmd_status() {
   remote "cd '$DEPLOY_DIR' && docker compose --profile connector --profile mail ps --format 'table {{.Service}}\t{{.Status}}'"
   for url in "https://$CRM_HOST/healthz" "https://$CHAT_HOST/" "https://$LEADS_HOST/health" ${MAIL_HOST:+"https://$MAIL_HOST/admin/"}; do
@@ -268,8 +399,11 @@ case "${1:-check}" in
   connect) cmd_connect ;;
   mail) cmd_mail ;;
   mail-off) cmd_mail_off ;;
+  link) cmd_link ;;
+  link-check) cmd_link_check ;;
+  link-off) cmd_link_off ;;
   status) cmd_status ;;
   pull-backups) cmd_pull_backups ;;
   down) cmd_down ;;
-  *) echo "usage: deploy.sh check|up|connect|mail|mail-off|status|pull-backups|down"; exit 2 ;;
+  *) echo "usage: deploy.sh check|up|connect|link|link-check|link-off|mail|mail-off|status|pull-backups|down"; exit 2 ;;
 esac
