@@ -37,3 +37,6 @@
 		respond 404
 	}
 }
+
+# Extra sites written by deploy.sh: the mail server's web pages when email is on (caddy-sites/mail.caddy).
+import /etc/caddy/sites/*.caddy

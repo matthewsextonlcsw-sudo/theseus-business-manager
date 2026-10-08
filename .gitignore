@@ -5,6 +5,9 @@
 *.env
 !*.env.example
 crm/deploy/env/
+crm/deploy/mail-certs/
+crm/deploy/caddy-sites/
+crm/deploy/backups/
 *.pem
 *.key
 *.p12

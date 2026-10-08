@@ -1,5 +1,6 @@
-# The CRM stack: Caddy (HTTPS) in front of Twenty, Chatwoot and the connector.
-# Only Caddy publishes ports. Each service reads only its own settings file in env/.
+# The CRM stack: Caddy (HTTPS) in front of Twenty, Chatwoot and the connector, plus an optional mail server.
+# Only Caddy publishes web ports; Stalwart (profile "mail") publishes the mail ports. Each service reads only
+# its own settings file in env/.
 name: mws-crm
 
 x-chatwoot: &chatwoot
@@ -30,6 +31,7 @@ services:
       - "443:443/udp"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./caddy-sites:/etc/caddy/sites:ro
       - caddy-data:/data
       - caddy-config:/config
     restart: unless-stopped
@@ -139,6 +141,32 @@ services:
     profiles: ["connector"]
     restart: unless-stopped
 
+  # Email (optional): Stalwart answers SMTP and IMAP itself; Caddy serves its web pages (caddy-sites/mail.caddy).
+  # TLS comes from Caddy's certificate, copied into mail-certs/ by mail-cert-sync.sh. See crm/README.md, Email.
+  stalwart:
+    image: stalwartlabs/stalwart:v0.16.25
+    env_file:
+      - path: env/mail.env
+        required: false
+    ports:
+      - "25:25"
+      - "465:465"
+      - "993:993"
+    volumes:
+      - stalwart-etc:/etc/stalwart
+      - stalwart-data:/var/lib/stalwart
+      - ./mail-certs:/certs:ro
+    profiles: ["mail"]
+    restart: unless-stopped
+
+  # Stalwart's command-line tool, run on demand by mail-setup.sh (docker compose run).
+  stalwart-cli:
+    image: stalwartlabs/cli:1.0.13
+    env_file:
+      - path: env/mail-cli.env
+        required: false
+    profiles: ["mail-tools"]
+
 volumes:
   caddy-data:
   caddy-config:
@@ -148,3 +176,5 @@ volumes:
   chatwoot-db-data:
   chatwoot-redis-data:
   connector-data:
+  stalwart-etc:
+  stalwart-data:

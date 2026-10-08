@@ -16,7 +16,8 @@ chat bubble ────▶ chat.<domain> (Chatwoot) ────┤  webhook
 | [Twenty](https://github.com/twentyhq/twenty) v2.45.0 | Contacts and the sales pipeline (stages New, Screening, Meeting, Proposal, Customer) |
 | [Chatwoot](https://github.com/chatwoot/chatwoot) v4.18.0 | The website chat bubble, and an inbox where a person takes over chats |
 | `connector/` | Takes form entries and chat messages, files leads in Twenty, asks the model for replies and summaries |
-| Caddy 2.11.6 | HTTPS for all three addresses; the only service that publishes ports |
+| Caddy 2.11.6 | HTTPS for all the web addresses; the only service that publishes web ports |
+| [Stalwart](https://github.com/stalwartlabs/stalwart) v0.16.25 (optional) | The studio's own email: sends, receives, signs and filters mail; IMAP for your mail app |
 
 ## How the connector behaves
 
@@ -87,6 +88,46 @@ Everything runs from your own computer with `crm/deploy/deploy.sh`, and nothing 
 7. `bash crm/deploy/deploy.sh connect` asks for the keys at hidden prompts and starts the connector.
 
 **Undo:** `deploy.sh down` stops everything and keeps all data in Docker volumes. **Backups:** nightly at 03:15 into `REMOTE_DIR/backups`. `deploy.sh pull-backups` copies them to `~/mws-crm-backups`, and old ones are never deleted automatically.
+
+## Email (optional)
+
+The studio's own mail server, in the same stack: [Stalwart](https://github.com/stalwartlabs/stalwart) v0.16.25 (open source, AGPL-3.0). It sends and receives mail directly, signs outgoing mail (DKIM), filters spam, and serves your mail app over IMAP. Caddy serves its web admin at `https://<mail host>/admin`, and the mail ports use Caddy's certificate, copied nightly. Stalwart's own docs describe this setup for servers behind Caddy.
+
+**Turn it on (order matters):**
+1. **DNS:** add an A record for `MAIL_HOST` (e.g. `mail.example.com`) pointing at the server.
+2. **Settings:** fill in `MAIL_HOST`, `MAIL_DOMAIN`, `MAILBOX` and `MAIL_ALIASES` in `deploy.env`.
+3. `bash crm/deploy/deploy.sh mail`, then type `yes`. It:
+   - opens ports 25, 465 and 993
+   - starts Stalwart and creates the mailbox and a mail administrator
+   - copies the certificate and turns on the nightly copy
+   - prints the DNS records your domain needs
+4. **Password:** read the mailbox password once, save it in your password manager, and delete the file. The command to read it is printed at the end.
+5. **More DNS:**
+   - Add the printed records: MX, SPF for the domain and for the mail host, two DKIM keys, and two SRV records that help mail apps find the server.
+   - Keep (or add) a DMARC record.
+6. **Reverse DNS:** at your server provider, point the server's IP address back to `MAIL_HOST`. Gmail and Outlook check it.
+7. `bash crm/deploy/deploy.sh check` shows the email checks, and your mail app connects with:
+   - IMAP: `MAIL_HOST`, port 993, SSL/TLS
+   - SMTP: `MAIL_HOST`, port 465, SSL/TLS
+   - User name: the full email address
+
+**How it behaves:**
+- **DKIM:** one signing key that doesn't change on its own. Your DNS is edited by hand, and Stalwart would otherwise switch to a new key every 90 days that DNS doesn't know about.
+- **Certificate:** `mail-cert-sync.sh` copies Caddy's certificate at 03:40 each night. It restarts the mail server (a few seconds) only when the certificate changed, because Stalwart reads certificate files when it starts.
+- **Passwords:** all generated on the server and never printed.
+  - The administrator's is kept in `env/mail-admin.pw`.
+  - The new mailbox's goes to `env/mail-new-credentials.txt` until you delete it.
+  - The one-time setup login is retired right after setup, as Stalwart advises.
+- **Backups:** the nightly backup includes the mailbox. The mail server pauses for a few seconds so its database is copied whole, and senders retry anything that arrives in that moment. Use `backup.sh <dir> mail` to back up only the mailbox, now.
+- **Delivery:** a brand-new mail server has no sending reputation, so its first messages to Gmail or Outlook can land in spam for a few weeks. Check the score with a test service before relying on it.
+- **Undo:** `deploy.sh mail-off` stops the mail server, and every message stays. Mail sent to you meanwhile waits at the sender's server and is retried.
+
+**Test:** `sudo bash crm/deploy/test-mail.sh` (Linux with Docker) runs the real setup, certificate and backup scripts as root against a real Stalwart, with a stand-in for Caddy, and sends no mail outside the machine. It makes 12 checks:
+- the certificate is copied, owned correctly and served on every mail port
+- setup prints no password, and a second run changes nothing
+- mail comes in through the alias, goes out signed, and is readable over IMAP
+- a renewed certificate takes effect
+- the backup is written and the server comes back
 
 ## Develop and test
 
