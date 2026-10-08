@@ -161,24 +161,43 @@ NEXT
 }
 
 cmd_connect() {
-  confirm "This writes the connector's settings on the server and starts it.
-You will be asked for four values; nothing you type is shown or saved on this computer."
-  read -rsp "Twenty API key: " twenty_key; echo
-  read -rp "Chatwoot account id (the number in the Chatwoot address bar): " cw_account
-  read -rsp "Chatwoot bot access token: " cw_token; echo
-  read -rsp "Chatwoot bot webhook secret: " cw_secret; echo
+  confirm "This saves the connector's settings on the server, and starts it once all of them are there.
+You are asked for four values. Press Enter to keep a value saved by an earlier run (or to skip one you don't
+have yet). Nothing you type is shown or kept on this computer."
+  saved="$(remote "cat '$DEPLOY_DIR/env/connector.env' 2>/dev/null" </dev/null || true)"
+  keep() { sed -n "s/^$1=//p" <<< "$saved" | tail -1; }
+  # ask <variable> <prompt> <name in connector.env> <secret|plain>
+  ask() {
+    local value
+    if [ "$4" = secret ]; then read -rsp "$2: " value; echo; else read -rp "$2: " value; fi
+    [ -n "$value" ] || value="$(keep "$3")"
+    printf -v "$1" '%s' "$value"
+  }
+  twenty_key="" cw_account="" cw_token="" cw_secret="" brain_key=""
+  ask twenty_key "Twenty API key (Enter = keep saved)" TWENTY_API_KEY secret
+  ask cw_account "Chatwoot account id, the number in the Chatwoot address bar (Enter = keep saved)" CHATWOOT_ACCOUNT_ID plain
+  ask cw_token "Chatwoot bot access token (Enter = keep saved)" CHATWOOT_BOT_TOKEN secret
+  ask cw_secret "Chatwoot bot webhook secret (Enter = keep saved)" CHATWOOT_WEBHOOK_SECRET secret
   if [ -n "${BRAIN_API_KEY_CMD:-}" ]; then
     brain_key=$(eval "$BRAIN_API_KEY_CMD")
   else
-    read -rsp "Model API key: " brain_key; echo
+    ask brain_key "Model API key (Enter = keep saved)" BRAIN_API_KEY secret
   fi
-  for v in twenty_key cw_account cw_token cw_secret brain_key; do
-    [ -n "${!v}" ] || { echo "A value was empty. Nothing changed."; exit 1; }
-  done
+  missing=""
+  [ -n "$twenty_key" ] || missing+=" Twenty API key,"
+  [ -n "$cw_account" ] || missing+=" Chatwoot account id,"
+  [ -n "$cw_token" ] || missing+=" Chatwoot bot token,"
+  [ -n "$cw_secret" ] || missing+=" Chatwoot webhook secret,"
+  [ -n "$brain_key" ] || missing+=" model API key,"
+  missing="${missing%,}"
   printf 'TWENTY_URL=%s\nTWENTY_API_KEY=%s\nCHATWOOT_ACCOUNT_ID=%s\nCHATWOOT_BOT_TOKEN=%s\nCHATWOOT_WEBHOOK_SECRET=%s\nBRAIN_URL=%s\nBRAIN_API_KEY=%s\nBRAIN_MODEL=%s\nALLOWED_ORIGINS=%s\nTHANKS_URL=%s\n' \
     "${TWENTY_URL:-http://twenty-server:3000}" "$twenty_key" "$cw_account" "$cw_token" "$cw_secret" "$BRAIN_URL" "$brain_key" "$BRAIN_MODEL" "$SITE_ORIGIN" "$THANKS_URL" \
     | remote "umask 077 && cat > '$DEPLOY_DIR/env/connector.env'"
-  unset twenty_key cw_token cw_secret brain_key
+  unset twenty_key cw_token cw_secret brain_key saved
+  if [ -n "$missing" ]; then
+    echo "Saved on the server. Still missing:${missing}. Run connect again when you have them; the connector starts once all are there."
+    return 0
+  fi
   remote "cd '$DEPLOY_DIR' && docker compose --profile connector build --quiet connector && docker compose --profile connector up -d connector"
   echo "Checking the connector..."
   for _ in $(seq 1 20); do
