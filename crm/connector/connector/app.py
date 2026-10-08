@@ -34,7 +34,7 @@ from .prompts import (
 )
 from .ratelimit import SlidingWindowLimiter
 from .store import Store
-from .twenty import TwentyClient, TwentyError, escape_markdown
+from .twenty import TwentyClient, TwentyError, as_list, escape_markdown
 
 log = logging.getLogger("connector")
 SUMMARY_MAX_ATTEMPTS = 200  # about three hours of one retry a minute; leads themselves are never dropped
@@ -83,7 +83,8 @@ class Connector:
         text = await self.brain.complete(summary_messages(lead, self.profile, self.doctrine))
         if text is None:
             return False
-        await self.twenty.add_note("AI summary", escape_markdown(text), payload["person_id"], payload["opportunity_id"])
+        lines = [escape_markdown(line.strip()) for line in text.splitlines() if line.strip()]
+        await self.twenty.add_note("AI summary", as_list(lines), payload["person_id"], payload["opportunity_id"])
         return True
 
     async def process_pending(self) -> int:

@@ -145,7 +145,8 @@ def test_twenty_outage_keeps_the_lead_and_retries(make_service: Make) -> None:
     asyncio.run(service.process_pending())  # files the lead and queues its summary
     asyncio.run(service.process_pending())  # writes the summary note
     assert service.store.pending() == []
-    assert any(body.get("title") == "AI summary" for _, body in twenty.requests)
+    summary = next(body for _, body in twenty.requests if body.get("title") == "AI summary")
+    assert summary["bodyV2"]["markdown"].startswith("- ")  # one bullet per line, escaped
 
 
 # /chatwoot/webhook -------------------------------------------------------------------------------

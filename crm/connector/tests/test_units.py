@@ -84,7 +84,7 @@ def test_create_lead_sends_twenty_standard_shapes() -> None:
     bodies = [b for _, b in fake.requests]
     assert bodies[0] == {"name": {"firstName": "Dana", "lastName": "Ruiz"}, "emails": {"primaryEmail": "dana@example.com"}}
     assert bodies[1] == {"name": "Dana Ruiz (Request consultation)", "stage": "NEW", "pointOfContactId": person_id}
-    assert bodies[2]["bodyV2"]["markdown"].startswith("**Source:** Request consultation")
+    assert bodies[2]["bodyV2"]["markdown"].startswith("- **Source:** Request consultation\n- **Email:** dana@example.com")
     assert bodies[3] == {"noteId": "notes-3", "targetOpportunityId": opportunity_id}
     assert bodies[4] == {"noteId": "notes-3", "targetPersonId": person_id}
 

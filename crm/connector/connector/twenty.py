@@ -61,6 +61,11 @@ def opportunity_name(lead: Lead) -> str:
     return f"{who} ({lead.source})"
 
 
+def as_list(lines: list[str]) -> str:
+    """One bullet per line: plain line breaks inside a Markdown paragraph run together in the CRM."""
+    return "\n".join(f"- {line}" for line in lines)
+
+
 def inquiry_markdown(lead: Lead) -> str:
     lines = [f"**Source:** {lead.source}"]
     if lead.email:
@@ -70,9 +75,8 @@ def inquiry_markdown(lead: Lead) -> str:
     if lead.preferred_time:
         lines.append(f"**Best time:** {escape_markdown(lead.preferred_time)}")
     lines.extend(f"**{label}:** {escape_markdown(value)}" for label, value in lead.detail_lines())
-    lines.append("")
-    lines.append(fenced(lead.message) if lead.message else "_No message._")
-    return "\n".join(lines)
+    message = fenced(lead.message) if lead.message else "_No message._"
+    return f"{as_list(lines)}\n\n{message}"
 
 
 class TwentyClient:
