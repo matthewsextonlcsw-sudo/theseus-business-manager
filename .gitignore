@@ -11,6 +11,7 @@ keys/
 
 # Browser profiles, sessions and captures (they can hold cookies and logins)
 .agent-browser/
+.theseus-browser/
 browser-profile/
 profiles/
 sessions/
