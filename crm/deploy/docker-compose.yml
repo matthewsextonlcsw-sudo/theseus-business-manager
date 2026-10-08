@@ -1,6 +1,6 @@
 # The CRM stack: Caddy (HTTPS) in front of Twenty, Chatwoot and the connector, plus an optional mail server.
 # Only Caddy publishes web ports; Stalwart (profile "mail") publishes the mail ports. Each service reads only
-# its own settings file in env/.
+# its own settings file in env/. Twenty (profile "twenty") can be left off to use an existing Twenty elsewhere.
 name: mws-crm
 
 x-chatwoot: &chatwoot
@@ -55,6 +55,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 30
+    profiles: ["twenty"]   # off when TWENTY_URL points at an existing Twenty elsewhere
     restart: unless-stopped
 
   twenty-worker:
@@ -73,6 +74,7 @@ services:
         condition: service_healthy
       twenty-server:
         condition: service_healthy
+    profiles: ["twenty"]   # off when TWENTY_URL points at an existing Twenty elsewhere
     restart: unless-stopped
 
   twenty-db:
@@ -88,6 +90,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    profiles: ["twenty"]   # off when TWENTY_URL points at an existing Twenty elsewhere
     restart: unless-stopped
 
   twenty-redis:
@@ -98,6 +101,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    profiles: ["twenty"]   # off when TWENTY_URL points at an existing Twenty elsewhere
     restart: unless-stopped
 
   chatwoot-rails:
@@ -133,7 +137,6 @@ services:
       dockerfile: crm/connector/Dockerfile
     env_file: env/connector.env
     environment:
-      TWENTY_URL: http://twenty-server:3000
       CHATWOOT_URL: http://chatwoot-rails:3000
       DATA_DIR: /data
     volumes:

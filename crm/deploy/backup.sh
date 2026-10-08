@@ -13,7 +13,10 @@ cd "$dir/crm/deploy"
 stamp="$(date +%F-%H%M)"
 
 if [ "$only" != mail ]; then
-  docker compose exec -T twenty-db pg_dump -U postgres default | gzip > "$out/twenty-$stamp.sql.gz"
+  # The stack's own Twenty only; an existing Twenty elsewhere is backed up where it runs.
+  if [ -n "$(docker compose --profile twenty ps -q twenty-db 2>/dev/null)" ]; then
+    docker compose --profile twenty exec -T twenty-db pg_dump -U postgres default | gzip > "$out/twenty-$stamp.sql.gz"
+  fi
   docker compose exec -T chatwoot-db pg_dump -U postgres chatwoot | gzip > "$out/chatwoot-$stamp.sql.gz"
 fi
 

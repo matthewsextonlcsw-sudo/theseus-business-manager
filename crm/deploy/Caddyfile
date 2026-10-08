@@ -19,11 +19,12 @@
 	}
 }
 
+# CRM_UPSTREAM: an existing Twenty reached over the private link, else the stack's own.
 {$CRM_HOST} {
 	import security
 	import setup_lock
 	encode zstd gzip
-	reverse_proxy twenty-server:3000
+	reverse_proxy {$CRM_UPSTREAM:twenty-server:3000}
 }
 
 {$CHAT_HOST} {
