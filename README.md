@@ -41,6 +41,26 @@ bash tools/install-dsh-next.sh        # copies skills + graph into ~/.dsh-next/s
 
 Then append the section in [brief/business-manager.md](brief/business-manager.md) to the agent's standing brief (`~/.dsh-next/AGENTS.md`), with your business name. Other harnesses that read `SKILL.md` folders can load the same `skills/` directory.
 
+### Skills from ECC
+
+Nine skills come from [ECC](https://github.com/affaan-m/ECC) (MIT), pinned to one commit and downloaded at install time rather than copied here: `hipaa-compliance`, `healthcare-phi-compliance`, `seo`, `design-system`, `frontend-a11y`, `email-ops`, `market-research`, `brand-voice`, `agent-self-evaluation`.
+
+```bash
+python3 tools/install_ecc_skills.py   # installs them next to Theseus's own skills, with ECC's license
+```
+
+They were picked because they are small, work in any harness, and fit a small studio. ECC skills that depend on Claude Code features or paid prospecting services were left out.
+
+### The browser
+
+Theseus's browser is [agent-browser](https://github.com/vercel-labs/agent-browser). Install it once with `npm install -g agent-browser && agent-browser install`. Chrome can't start inside a sandboxed agent shell, so start the browser once from a normal terminal:
+
+```bash
+~/.dsh-next/skills/browse-like-a-person/scripts/browser start
+```
+
+The agent's commands then drive that window through a control socket.
+
 ## Checking the work
 
 ```bash
