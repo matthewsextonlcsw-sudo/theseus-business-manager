@@ -33,10 +33,14 @@ patterns=(
   '\b10\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\b'
   '\b172\.(1[6-9]|2[0-9]|3[01])\.[0-9]{1,3}\.[0-9]{1,3}\b'
 )
+# Fixed addresses that are part of this project's design, identical in every install, so not a leak:
+# the private model link's /30 (deploy.sh link). Only these exact addresses are exempt.
+design_ips='^10\.77\.0\.[0-3]$'
 for p in "${patterns[@]}"; do
   while IFS= read -r f; do
     [ -f "$f" ] || continue
-    if grep -EIqi -- "$p" "$f"; then report "pattern /$p/ in $f"; fi
+    hits="$(grep -EIoi -- "$p" "$f" | grep -Ev -- "$design_ips" || true)"
+    if [ -n "$hits" ]; then report "pattern /$p/ in $f"; fi
   done <<< "$files"
 done
 
