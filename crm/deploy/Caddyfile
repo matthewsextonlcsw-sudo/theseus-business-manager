@@ -3,6 +3,13 @@
 	email {$ACME_EMAIL}
 }
 
+# Setup lock: while SETUP_ALLOW_IP is set (caddy.env), the CRM and chat apps answer only that address,
+# so nobody else can claim their first-run admin before you do. Unset it once your accounts exist.
+(setup_lock) {
+	@not_owner not remote_ip {$SETUP_ALLOW_IP:0.0.0.0/0 ::/0}
+	respond @not_owner "Setting up. Back soon." 403
+}
+
 (security) {
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
@@ -14,12 +21,14 @@
 
 {$CRM_HOST} {
 	import security
+	import setup_lock
 	encode zstd gzip
 	reverse_proxy twenty-server:3000
 }
 
 {$CHAT_HOST} {
 	import security
+	import setup_lock
 	encode zstd gzip
 	reverse_proxy chatwoot-rails:3000
 }

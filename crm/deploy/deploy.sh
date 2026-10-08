@@ -3,6 +3,7 @@
 #
 #   bash crm/deploy/deploy.sh check          read-only look at the server, DNS, ports and model access
 #   bash crm/deploy/deploy.sh up             install Docker if needed, open 80/443, start Caddy, Twenty, Chatwoot, backups
+#   bash crm/deploy/deploy.sh unlock         end the setup lock (SETUP_ALLOW_IP) once your accounts exist
 #   bash crm/deploy/deploy.sh connect        ask for API keys (hidden), then start the connector
 #   bash crm/deploy/deploy.sh link           optional: private WireGuard link to a model server at home (one port only)
 #   bash crm/deploy/deploy.sh link-off       remove that link from both machines
@@ -81,6 +82,7 @@ cmd_check() {
 write_env_files() {
   remote "set -e; mkdir -p '$DEPLOY_DIR/env'; cd '$DEPLOY_DIR'; umask 077
     printf 'CRM_HOST=%s\nCHAT_HOST=%s\nLEADS_HOST=%s\nACME_EMAIL=%s\n' '$CRM_HOST' '$CHAT_HOST' '$LEADS_HOST' '$ACME_EMAIL' > env/caddy.env
+    if [ -n '${SETUP_ALLOW_IP:-}' ]; then echo 'SETUP_ALLOW_IP=${SETUP_ALLOW_IP:-}' >> env/caddy.env; fi
     if [ ! -f env/twenty.env ]; then
       pg=\$(openssl rand -hex 24); key=\$(openssl rand -base64 32)
       printf 'POSTGRES_PASSWORD=%s\nPG_DATABASE_URL=postgres://postgres:%s@twenty-db:5432/default\nSERVER_URL=https://%s\nENCRYPTION_KEY=%s\n' \"\$pg\" \"\$pg\" '$CRM_HOST' \"\$key\" > env/twenty.env
@@ -133,9 +135,11 @@ Undo: bash crm/deploy/deploy.sh down (stops everything, keeps the data)."
     --exclude 'deploy.env' --exclude 'env/' --exclude 'mail-certs/' --exclude 'caddy-sites/' "$ROOT/crm" "$DEPLOY_SSH:$REMOTE_DIR/"
   rsync -az "$ROOT/knowledge" "$DEPLOY_SSH:$REMOTE_DIR/"
   write_env_files
-  remote "cd '$DEPLOY_DIR' && docker compose pull --quiet && docker compose up -d"
+  # Databases and Twenty first; Chatwoot's app only after its database is prepared (else it restarts until then).
+  remote "cd '$DEPLOY_DIR' && docker compose pull --quiet && docker compose up -d caddy twenty-db twenty-redis twenty-server twenty-worker chatwoot-db chatwoot-redis"
   echo "Preparing Chatwoot's database (first run takes a few minutes)..."
   remote "cd '$DEPLOY_DIR' && docker compose run --rm chatwoot-rails bundle exec rails db:chatwoot_prepare"
+  remote "cd '$DEPLOY_DIR' && docker compose up -d"
   echo "Waiting for Twenty to report healthy..."
   remote "cd '$DEPLOY_DIR' && for i in \$(seq 1 60); do
       [ \"\$(docker inspect -f '{{.State.Health.Status}}' \$(docker compose ps -q twenty-server))\" = healthy ] && { echo 'Twenty is healthy'; exit 0; }
@@ -372,6 +376,14 @@ It does not put $DEPLOY_SSH back on Tailscale; that needs your Tailscale login."
     systemctl daemon-reload; echo model side removed'"
 }
 
+cmd_unlock() {
+  confirm "This opens $CRM_HOST and $CHAT_HOST to everyone (the setup lock ends). Do it once your Twenty and
+Chatwoot accounts exist. It also comments out SETUP_ALLOW_IP in deploy.env, so a later up keeps them open."
+  sed -i.bak 's/^SETUP_ALLOW_IP=/# SETUP_ALLOW_IP=/' "$CONFIG" && rm -f "$CONFIG.bak"
+  remote "cd '$DEPLOY_DIR' && sed -i '/^SETUP_ALLOW_IP=/d' env/caddy.env && docker compose up -d caddy >/dev/null 2>&1"
+  echo "Setup lock removed: $CRM_HOST and $CHAT_HOST are open."
+}
+
 cmd_status() {
   remote "cd '$DEPLOY_DIR' && docker compose --profile connector --profile mail ps --format 'table {{.Service}}\t{{.Status}}'"
   for url in "https://$CRM_HOST/healthz" "https://$CHAT_HOST/" "https://$LEADS_HOST/health" ${MAIL_HOST:+"https://$MAIL_HOST/admin/"}; do
@@ -400,10 +412,11 @@ case "${1:-check}" in
   mail) cmd_mail ;;
   mail-off) cmd_mail_off ;;
   link) cmd_link ;;
+  unlock) cmd_unlock ;;
   link-check) cmd_link_check ;;
   link-off) cmd_link_off ;;
   status) cmd_status ;;
   pull-backups) cmd_pull_backups ;;
   down) cmd_down ;;
-  *) echo "usage: deploy.sh check|up|connect|link|link-check|link-off|mail|mail-off|status|pull-backups|down"; exit 2 ;;
+  *) echo "usage: deploy.sh check|up|unlock|connect|link|link-check|link-off|mail|mail-off|status|pull-backups|down"; exit 2 ;;
 esac

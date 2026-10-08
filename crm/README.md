@@ -82,6 +82,7 @@ Everything runs from your own computer with `crm/deploy/deploy.sh`, and nothing 
 3. **Settings**: `cp crm/deploy/deploy.env.example crm/deploy/deploy.env` and fill it in. No secrets go in it.
 4. `bash crm/deploy/deploy.sh check` is read-only. It shows the server, DNS, free ports and whether the model answers.
 5. `bash crm/deploy/deploy.sh up` installs Docker if needed, opens ports 80 and 443, and copies the stack to `REMOTE_DIR`. It creates database passwords on the server (only once), then starts Caddy, Twenty and Chatwoot, and turns on nightly backups.
+   With `SETUP_ALLOW_IP` set, only that address can open the CRM and chat apps until you run `deploy.sh unlock`. Otherwise the first visitor to Chatwoot's setup page, or Twenty's sign-up, would become their owner.
 6. In the browser:
    - **Twenty:** create your login and an API key.
    - **Chatwoot:** create your admin (leave **subscribe to updates** unticked) and a Website inbox, then add a bot with webhook `https://leads.<domain>/chatwoot/webhook` and connect it to the inbox.
