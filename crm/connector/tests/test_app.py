@@ -75,12 +75,37 @@ def test_invalid_leads(make_service: Make) -> None:
     client = client_for(service)
     bad = client.post("/lead", json={"name": "", "contact": "nope"})
     assert bad.status_code == 422 and set(bad.json()["errors"]) == {"name", "contact"}
-    back = client.post(
-        "/lead", data={"name": "", "contact": "nope"},
-        headers={"Referer": "https://site.example/request-consultation/"}, follow_redirects=False,
-    )
+    fields = client.post("/lead", json={"name": "Ana", "email": "ana@", "phone": "555"})
+    assert fields.status_code == 422 and set(fields.json()["errors"]) == {"email", "phone"}
+
+
+def post_form(client: TestClient, data: dict, headers: dict) -> object:
+    return client.post("/lead", data=data, headers=headers, follow_redirects=False)
+
+
+def test_plain_form_with_a_problem_goes_back_to_its_own_page(make_service: Make) -> None:
+    service, *_ = make_service()
+    client = client_for(service)
+    origin = {"Origin": "https://site.example"}
+    form = {"name": "", "email": "ana@example.com", "return_path": "/request-consultation/"}
+    back = post_form(client, form, origin)
     assert back.status_code == 303
-    assert back.headers["location"] == "https://site.example/request-consultation/?form_error=1#form"
+    assert back.headers["location"] == "https://site.example/request-consultation/#form-error"
+    # Browsers send only the origin as the referrer across sites; that is enough to find the site.
+    referer_only = post_form(client, form, {"Referer": "https://site.example/"})
+    assert referer_only.headers["location"] == "https://site.example/request-consultation/#form-error"
+
+
+def test_return_path_can_never_leave_the_site(make_service: Make) -> None:
+    service, *_ = make_service()
+    client = client_for(service)
+    origin = {"Origin": "https://site.example"}
+    for path in ("//evil.example/x", "https://evil.example/", "/\\evil.example", "/ok?next=//evil", "relative/path"):
+        response = post_form(client, {"name": "", "email": "a@b.co", "return_path": path}, origin)
+        assert response.headers["location"] == "https://site.example/#form-error", path
+    fresh = client_for(service)  # a new app, so the rate limit above doesn't hide the answer
+    stranger = post_form(fresh, {"name": "", "email": "a@b.co", "return_path": "/x/"}, {"Origin": "https://evil.example"})
+    assert stranger.status_code == 422 and "location" not in stranger.headers
 
 
 def test_lead_rate_limit(make_service: Make) -> None:
@@ -88,6 +113,26 @@ def test_lead_rate_limit(make_service: Make) -> None:
     client = client_for(service)
     codes = [client.post("/lead", json={"name": "A", "contact": "a@b.co"}).status_code for _ in range(4)]
     assert codes == [200, 200, 200, 429]
+    form = {"name": "A", "email": "a@b.co", "return_path": "/request-consultation/"}
+    limited = post_form(client, form, {"Origin": "https://site.example"})
+    assert limited.status_code == 303 and limited.headers["location"].endswith("/request-consultation/#form-error")
+
+
+def test_site_form_fields_reach_the_crm(make_service: Make) -> None:
+    service, twenty, *_ = make_service()
+    form = {
+        "form": "snapshot", "name": "Ana Diaz", "email": "Ana@Example.com", "phone": "(516) 555-0101",
+        "business": "Diaz Dental", "city": "Floral Park", "site_url": "diazdental.example",
+        "message": "Our hours are wrong on Google.", "return_path": "/free-local-visibility-assessment/", "website": "",
+    }
+    response = post_form(client_for(service), form, {"Origin": "https://site.example"})
+    assert response.status_code == 303 and response.headers["location"] == SETTINGS.thanks_url
+    bodies = dict(twenty.requests[:3])
+    assert bodies["/rest/people"]["phones"] == {"primaryPhoneNumber": "(516) 555-0101"}
+    assert bodies["/rest/opportunities"]["name"] == "Ana Diaz, Diaz Dental (Local Visibility Snapshot)"
+    note = bodies["/rest/notes"]["bodyV2"]["markdown"]
+    assert "**Business:** Diaz Dental" in note and "**City or service area:** Floral Park" in note
+    assert "Our hours are wrong on Google." in note
 
 
 def test_twenty_outage_keeps_the_lead_and_retries(make_service: Make) -> None:

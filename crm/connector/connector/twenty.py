@@ -7,6 +7,7 @@ noteTargets noteId with targetPersonId / targetOpportunityId.
 """
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import httpx
@@ -39,15 +40,38 @@ def person_body(lead: Lead) -> dict[str, Any]:
     return body
 
 
+MARKDOWN_SPECIAL_RE = re.compile(r"([\\`*_{}\[\]()<>#+!|~-])")
+
+
+def escape_markdown(text: str) -> str:
+    """Show visitor or model text literally in a CRM note: no links, images or formatting sneak in."""
+    return MARKDOWN_SPECIAL_RE.sub(r"\\\1", text)
+
+
+def fenced(text: str) -> str:
+    """A code block the text can't break out of: the fence is longer than any run of backticks inside."""
+    longest = max((len(run) for run in re.findall(r"`+", text)), default=0)
+    fence = "`" * max(3, longest + 1)
+    return f"{fence}text\n{text}\n{fence}"
+
+
+def opportunity_name(lead: Lead) -> str:
+    business = lead.details.get("business")
+    who = f"{lead.name}, {business}" if business else lead.name
+    return f"{who} ({lead.source})"
+
+
 def inquiry_markdown(lead: Lead) -> str:
-    lines = [
-        f"**Source:** {lead.source}",
-        f"**Contact:** {lead.contact}",
-    ]
+    lines = [f"**Source:** {lead.source}"]
+    if lead.email:
+        lines.append(f"**Email:** {escape_markdown(lead.email)}")
+    if lead.phone:
+        lines.append(f"**Phone:** {escape_markdown(lead.phone)}")
     if lead.preferred_time:
-        lines.append(f"**Best time:** {lead.preferred_time}")
+        lines.append(f"**Best time:** {escape_markdown(lead.preferred_time)}")
+    lines.extend(f"**{label}:** {escape_markdown(value)}" for label, value in lead.detail_lines())
     lines.append("")
-    lines.append(lead.message or "_No message._")
+    lines.append(fenced(lead.message) if lead.message else "_No message._")
     return "\n".join(lines)
 
 
@@ -74,7 +98,7 @@ class TwentyClient:
         person_id = await self._create("/people", person_body(lead))
         opportunity_id = await self._create(
             "/opportunities",
-            {"name": f"{lead.name} ({lead.source})", "stage": "NEW", "pointOfContactId": person_id},
+            {"name": opportunity_name(lead), "stage": "NEW", "pointOfContactId": person_id},
         )
         await self.add_note(f"Inquiry: {lead.source}", inquiry_markdown(lead), person_id, opportunity_id)
         return person_id, opportunity_id

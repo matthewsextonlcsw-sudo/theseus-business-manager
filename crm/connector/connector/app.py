@@ -4,11 +4,12 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import time
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 from pathlib import Path
-from typing import Any, AsyncIterator, Callable
+from typing import Any, AsyncIterator, Callable, Mapping
 from urllib.parse import urlparse
 
 from fastapi import BackgroundTasks, FastAPI, Request
@@ -33,11 +34,13 @@ from .prompts import (
 )
 from .ratelimit import SlidingWindowLimiter
 from .store import Store
-from .twenty import TwentyClient, TwentyError
+from .twenty import TwentyClient, TwentyError, escape_markdown
 
 log = logging.getLogger("connector")
 SUMMARY_MAX_ATTEMPTS = 200  # about three hours of one retry a minute; leads themselves are never dropped
 THANKS = "Thanks. We got your request."
+# A path on the site, nothing more: no scheme, no host, no "//", no query or fragment.
+RETURN_PATH_RE = re.compile(r"^/(?!/)[A-Za-z0-9/_.~-]{0,200}$")
 
 
 class Connector:
@@ -80,7 +83,7 @@ class Connector:
         text = await self.brain.complete(summary_messages(lead, self.profile, self.doctrine))
         if text is None:
             return False
-        await self.twenty.add_note("AI summary", text, payload["person_id"], payload["opportunity_id"])
+        await self.twenty.add_note("AI summary", escape_markdown(text), payload["person_id"], payload["opportunity_id"])
         return True
 
     async def process_pending(self) -> int:
@@ -192,6 +195,22 @@ def _client_ip(request: Request) -> str:
     return request.client.host if request.client else "unknown"
 
 
+def _form_return_url(request: Request, form: Mapping[str, str], allowed: set[str]) -> str | None:
+    """Where to send a visitor whose plain (no-JavaScript) form needs another look, or None.
+
+    Across sites, browsers send only the origin as the referrer, so the form names its own page
+    in `return_path`. Only a path on an allowed site is used, never a full address.
+    """
+    origin = request.headers.get("origin", "")
+    if not origin:
+        referer = urlparse(request.headers.get("referer", ""))
+        origin = f"{referer.scheme}://{referer.netloc}" if referer.scheme and referer.netloc else ""
+    if origin not in allowed:
+        return None
+    path = str(form.get("return_path", "") or "/")
+    return f"{origin}{path if RETURN_PATH_RE.match(path) else '/'}#form-error"
+
+
 def create_app(
     settings: Settings,
     connector: Connector | None = None,
@@ -246,15 +265,16 @@ def create_app(
             return JSONResponse({"error": "We couldn't read that form."}, status_code=400)
         if is_spam(form):
             return success(as_json)
+        back = None if as_json else _form_return_url(request, form, allowed)
         if not lead_limiter.allow(f"lead:{_client_ip(request)}", clock()):
+            if back:
+                return RedirectResponse(back, status_code=303)
             return JSONResponse({"error": "Too many requests. Please try again later or email us."}, status_code=429)
         try:
             parsed = parse_lead(form)
         except LeadError as exc:
-            referer = request.headers.get("referer", "")
-            origin = f"{urlparse(referer).scheme}://{urlparse(referer).netloc}" if referer else ""
-            if not as_json and origin in allowed:
-                return RedirectResponse(referer.split("#")[0].split("?")[0] + "?form_error=1#form", status_code=303)
+            if back:
+                return RedirectResponse(back, status_code=303)
             return JSONResponse({"errors": exc.problems}, status_code=422)
         await service.file_lead(parsed)
         return success(as_json)

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Mapping
 
 EMAIL_RE = re.compile(r"^[^@\s]{1,64}@[^@\s]{1,253}\.[A-Za-z]{2,24}$")
@@ -12,7 +12,20 @@ PHONE_IN_TEXT_RE = re.compile(r"(?:\+?1[\s.-]?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d
 
 FORMS = {"consultation": "Request consultation", "snapshot": "Local Visibility Snapshot", "chat": "Website chat"}
 HONEYPOT_FIELD = "website"
-LIMITS = {"name": 120, "contact": 200, "preferred_time": 120, "message": 2000}
+LIMITS = {"name": 120, "email": 200, "phone": 40, "contact": 200, "preferred_time": 120, "message": 2000}
+# Optional intake questions a site form may ask, as field name: (label in the CRM, length limit).
+# Anything else a form sends is ignored, never stored. The site address is `site_url` because
+# `website` is the spam trap.
+DETAIL_FIELDS = {
+    "role": ("Role", 120),
+    "business": ("Business", 160),
+    "city": ("City or service area", 120),
+    "site_url": ("Website", 300),
+    "profile_url": ("Google Business Profile", 300),
+    "work_type": ("Work type", 80),
+    "deadline": ("Deadline or dependency", 300),
+}
+NO_CONTACT = "Please give an email address or a phone number we can reach you at."
 
 
 class LeadError(ValueError):
@@ -31,6 +44,7 @@ class Lead:
     preferred_time: str
     message: str
     source: str
+    details: dict[str, str] = field(default_factory=dict)
 
     @property
     def first_name(self) -> str:
@@ -45,6 +59,10 @@ class Lead:
     def contact(self) -> str:
         return self.email or self.phone
 
+    def detail_lines(self) -> list[tuple[str, str]]:
+        """The optional answers with their labels, in a fixed order."""
+        return [(label, self.details[key]) for key, (label, _) in DETAIL_FIELDS.items() if self.details.get(key)]
+
 
 def is_spam(form: Mapping[str, str]) -> bool:
     """A person never fills the hidden field; bots usually do."""
@@ -53,6 +71,37 @@ def is_spam(form: Mapping[str, str]) -> bool:
 
 def _clean(value: object) -> str:
     return " ".join(str(value or "").split())
+
+
+def _is_phone(value: str) -> bool:
+    return len(PHONE_DIGITS_RE.findall(value)) >= 10
+
+
+def _contact(form: Mapping[str, str], values: dict[str, str], problems: dict[str, str]) -> tuple[str, str]:
+    """Read separate email and phone fields, or the single `contact` field older forms send."""
+    if "email" not in form and "phone" not in form:
+        contact = values["contact"]
+        if EMAIL_RE.match(contact):
+            return contact.lower(), ""
+        if _is_phone(contact):
+            return "", contact
+        problems.setdefault("contact", NO_CONTACT)
+        return "", ""
+
+    email = phone = ""
+    if values["email"]:
+        if EMAIL_RE.match(values["email"]):
+            email = values["email"].lower()
+        else:
+            problems.setdefault("email", "Please check the email address.")
+    if values["phone"]:
+        if _is_phone(values["phone"]):
+            phone = values["phone"]
+        else:
+            problems.setdefault("phone", "Please include the area code.")
+    if not values["email"] and not values["phone"]:
+        problems.setdefault("email", NO_CONTACT)
+    return email, phone
 
 
 def parse_lead(form: Mapping[str, str]) -> Lead:
@@ -68,15 +117,15 @@ def parse_lead(form: Mapping[str, str]) -> Lead:
         if len(values[key]) > limit:
             problems[key] = f"Please keep this under {limit} characters."
 
-    contact = values["contact"]
-    email = phone = ""
-    if EMAIL_RE.match(contact):
-        email = contact.lower()
-    elif len(PHONE_DIGITS_RE.findall(contact)) >= 10:
-        phone = contact
-    elif "contact" not in problems:
-        problems["contact"] = "Please give an email address or a phone number we can reach you at."
+    details: dict[str, str] = {}
+    for key, (_label, limit) in DETAIL_FIELDS.items():
+        value = _clean(form.get(key, ""))
+        if len(value) > limit:
+            problems[key] = f"Please keep this under {limit} characters."
+        elif value:
+            details[key] = value
 
+    email, phone = _contact(form, values, problems)
     if problems:
         raise LeadError(problems)
     return Lead(
@@ -86,6 +135,7 @@ def parse_lead(form: Mapping[str, str]) -> Lead:
         preferred_time=values["preferred_time"],
         message=message,
         source=source,
+        details=details,
     )
 
 

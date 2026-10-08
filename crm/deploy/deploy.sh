@@ -73,7 +73,7 @@ write_env_files() {
     fi
     if [ ! -f env/chatwoot.env ]; then
       skb=\$(openssl rand -hex 64); pg=\$(openssl rand -hex 24); rp=\$(openssl rand -hex 24)
-      printf 'SECRET_KEY_BASE=%s\nFRONTEND_URL=https://%s\nPOSTGRES_PASSWORD=%s\nREDIS_PASSWORD=%s\nENABLE_ACCOUNT_SIGNUP=false\nFORCE_SSL=false\nRAILS_LOG_TO_STDOUT=true\nLOG_LEVEL=info\nACTIVE_STORAGE_SERVICE=local\n' \"\$skb\" '$CHAT_HOST' \"\$pg\" \"\$rp\" > env/chatwoot.env
+      printf 'SECRET_KEY_BASE=%s\nFRONTEND_URL=https://%s\nPOSTGRES_PASSWORD=%s\nREDIS_PASSWORD=%s\nENABLE_ACCOUNT_SIGNUP=false\nFORCE_SSL=false\nRAILS_LOG_TO_STDOUT=true\nLOG_LEVEL=info\nACTIVE_STORAGE_SERVICE=local\nDISABLE_TELEMETRY=true\n' \"\$skb\" '$CHAT_HOST' \"\$pg\" \"\$rp\" > env/chatwoot.env
       echo 'created env/chatwoot.env (new secrets)'
     fi
     [ -f env/connector.env ] || : > env/connector.env"
@@ -130,7 +130,7 @@ Undo: bash crm/deploy/deploy.sh down (stops everything, keeps the data)."
 
 Stack is up. Next, in your browser:
   1. https://$CRM_HOST   create your Twenty login, then Settings > API & Webhooks > create an API key.
-  2. https://$CHAT_HOST  create your Chatwoot admin, then add a Website inbox for $SITE_ORIGIN.
+  2. https://$CHAT_HOST  create your Chatwoot admin (leave 'subscribe to updates' unticked), then add a Website inbox for $SITE_ORIGIN.
      Settings > Bots > Add bot: webhook URL https://$LEADS_HOST/chatwoot/webhook. Keep its access token and secret.
      Connect the bot to the Website inbox.
   3. Then run: bash crm/deploy/deploy.sh connect
