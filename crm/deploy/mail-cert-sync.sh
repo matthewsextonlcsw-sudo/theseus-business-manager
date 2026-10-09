@@ -33,10 +33,11 @@ if cmp -s "$tmp/mail.crt" mail-certs/mail.crt && cmp -s "$tmp/mail.key" mail-cer
   exit 0
 fi
 
-# Stalwart runs as user 2000 and reads the files through a read-only mount.
-install -o 2000 -g 2000 -m 644 "$tmp/mail.crt" mail-certs/mail.crt
-install -o 2000 -g 2000 -m 600 "$tmp/mail.key" mail-certs/mail.key
-chown 2000:2000 mail-certs
+# Stalwart runs as user 2000 and reads the files through a read-only mount. The owner is set with chown:
+# the uutils `install` on Ubuntu 26.04 rejects a numeric -o for a user this host doesn't have.
+install -m 644 "$tmp/mail.crt" mail-certs/mail.crt
+install -m 600 "$tmp/mail.key" mail-certs/mail.key
+chown 2000:2000 mail-certs/mail.crt mail-certs/mail.key mail-certs
 chmod 700 mail-certs
 
 if [ -n "$(dc ps -q stalwart)" ]; then
