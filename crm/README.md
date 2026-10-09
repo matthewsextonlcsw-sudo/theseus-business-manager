@@ -29,8 +29,16 @@ chat bubble ────▶ chat.<domain> (Chatwoot) ────┤  webhook
   - "Can I talk to a person?" hands the chat to the inbox.
   - An email or phone number in a chat files a lead.
   - Otherwise the model answers from the business profile. If it doesn't answer in time, the visitor gets a holding message written in advance and the chat goes to a person. It never switches to another model on its own.
+  - The model sees the chat so far. Chatwoot doesn't let a bot read a conversation, so the connector keeps each chat's last 40 messages itself, for 30 days.
   - Every reply is checked before it's sent: anything that looks like a price is replaced, and long replies are cut.
 - The bot's rules: says it's an AI, uses only the business facts, never quotes prices or timelines, never promises results, never asks for health details, and treats visitor text as information, not instructions.
+
+**Deleting one visitor's chat on request:** delete the conversation in Chatwoot and the person in Twenty, then remove the connector's copy. `ID` is the number after `/conversations/` in Chatwoot's address bar:
+
+```bash
+cd /opt/mws-crm/crm/deploy && docker compose --profile connector exec connector \
+  python -c "from connector.store import Store; Store('/data/connector.db').forget_conversation(ID)"
+```
 
 ## Connect a website
 

@@ -2,6 +2,8 @@
 
 Signature scheme (from Chatwoot's lib/webhooks/trigger.rb): header X-Chatwoot-Signature is
 "sha256=" + HMAC-SHA256(secret, f"{X-Chatwoot-Timestamp}.{raw body}").
+A bot's token may post messages and change a chat's status, but not read a conversation
+(BOT_ACCESSIBLE_ENDPOINTS in Chatwoot's access_token_auth_helper.rb), so store.py keeps each chat's turns.
 """
 from __future__ import annotations
 
@@ -62,24 +64,6 @@ class ChatwootClient:
     async def hand_off(self, conversation_id: int) -> None:
         """Opening the conversation takes it away from the bot and puts it in a person's inbox."""
         await self._post(f"/conversations/{conversation_id}/toggle_status", {"status": "open"})
-
-    async def history(self, conversation_id: int, limit: int = 12) -> list[dict[str, str]]:
-        """Recent visitor and bot messages, oldest first, as chat turns. Private notes are left out."""
-        try:
-            response = await self._client.get(f"/conversations/{conversation_id}/messages")
-            response.raise_for_status()
-        except httpx.HTTPError as exc:
-            raise ChatwootError(f"could not read the conversation: {exc}") from exc
-        turns: list[dict[str, str]] = []
-        for message in response.json().get("payload", []):
-            if message.get("private") or not message.get("content"):
-                continue
-            kind = message.get("message_type")
-            if kind in INCOMING:
-                turns.append({"role": "user", "content": str(message["content"])})
-            elif kind in {"outgoing", 1, "1"}:
-                turns.append({"role": "assistant", "content": str(message["content"])})
-        return turns[-limit:]
 
     async def aclose(self) -> None:
         await self._client.aclose()

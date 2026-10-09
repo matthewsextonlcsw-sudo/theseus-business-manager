@@ -17,7 +17,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, RedirectResponse, Response
 
 from .brain import BrainClient
-from .chatwoot import INCOMING, ChatwootClient, ChatwootError, verify_signature
+from .chatwoot import INCOMING, ChatwootClient, verify_signature
 from .config import Settings
 from .leads import FORMS, Lead, LeadError, contact_from_text, is_spam, parse_lead
 from .prompts import (
@@ -149,18 +149,15 @@ class Connector:
             )
             await self.file_lead(lead, conversation_id)
 
-        try:
-            history = await self.chatwoot.history(conversation_id)
-        except ChatwootError:
-            history = []
-        if not history or history[-1].get("content") != content:
-            history = [*history, {"role": "user", "content": content}]
-
+        self.store.add_message(conversation_id, "user", content)
+        history = self.store.history(conversation_id)
         reply = await self.brain.complete([{"role": "system", "content": self.system_prompt}, *history])
         if reply is None:
             await self._say_and_hand_off(conversation_id, HOLDING_MESSAGE)
             return "holding"
-        await self.chatwoot.send_message(conversation_id, guard_reply(reply))
+        answer = guard_reply(reply)
+        await self.chatwoot.send_message(conversation_id, answer)
+        self.store.add_message(conversation_id, "assistant", answer)
         return "replied"
 
     async def handle_chat_safely(self, conversation_id: int, content: str, sender_name: str, status: str | None) -> None:

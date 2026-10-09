@@ -57,14 +57,15 @@ class FakeTwenty:
 
 
 class FakeChatwoot:
-    def __init__(self, history: list[dict] | None = None) -> None:
-        self.history = history or []
+    def __init__(self) -> None:
         self.sent: list[str] = []
         self.handoffs: list[dict] = []
 
     def handler(self, request: httpx.Request) -> httpx.Response:
+        # Like the real server: a bot's token may post messages and change a chat's status, but never
+        # read a conversation (Chatwoot's BOT_ACCESSIBLE_ENDPOINTS).
         if request.method == "GET":
-            return httpx.Response(200, json={"payload": self.history})
+            return httpx.Response(401, json={"error": "You are not authorized to access this endpoint"})
         body = json.loads(request.content)
         if request.url.path.endswith("/messages"):
             self.sent.append(body["content"])

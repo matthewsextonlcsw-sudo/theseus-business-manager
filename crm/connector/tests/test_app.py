@@ -10,7 +10,7 @@ from connector.app import create_app
 from connector.chatwoot import sign
 from connector.prompts import CRISIS_MESSAGE, HANDOFF_MESSAGE, HOLDING_MESSAGE, PRICE_FALLBACK
 
-from .conftest import SETTINGS, FakeBrain, FakeChatwoot, FakeTwenty, Make
+from .conftest import SETTINGS, FakeBrain, FakeTwenty, Make
 
 NOW = 1_800_000_000.0
 
@@ -166,6 +166,22 @@ def test_incoming_message_gets_a_model_reply(make_service: Make) -> None:
     assert brain.calls[0]["messages"][-1] == {"role": "user", "content": "What do you do?"}
 
 
+def test_follow_up_messages_see_the_earlier_turns(make_service: Make) -> None:
+    service, _, chatwoot, brain = make_service()
+    client = client_for(service)
+    webhook(client, incoming("What do you do?"))
+    webhook(client, incoming("Do you also build websites?"))
+    webhook(client, incoming("Hello", conversation_id=7))
+    reply = FakeBrain().reply
+    assert brain.calls[1]["messages"][1:] == [
+        {"role": "user", "content": "What do you do?"},
+        {"role": "assistant", "content": reply},
+        {"role": "user", "content": "Do you also build websites?"},
+    ]
+    assert brain.calls[2]["messages"][1:] == [{"role": "user", "content": "Hello"}]
+    assert chatwoot.sent == [reply, reply, reply]
+
+
 def test_model_down_sends_holding_message_and_hands_off(make_service: Make) -> None:
     service, _, chatwoot, _ = make_service(brain=FakeBrain(mode="timeout"))
     webhook(client_for(service), incoming("Do you build booking pages?"))
@@ -206,3 +222,4 @@ def test_price_in_model_reply_is_replaced(make_service: Make) -> None:
     service, _, chatwoot, _ = make_service(brain=FakeBrain(reply="That's usually $1,500."))
     webhook(client_for(service), incoming("How much is a website?"))
     assert chatwoot.sent == [PRICE_FALLBACK]
+    assert service.store.history(42)[-1] == {"role": "assistant", "content": PRICE_FALLBACK}

@@ -130,15 +130,20 @@ def test_signature_checks() -> None:
     assert not verify_signature("secret", "", body, good, now=1000)
 
 
-def test_history_keeps_visitor_and_bot_turns_only() -> None:
-    payload = {"payload": [
-        {"message_type": 0, "content": "hi", "private": False},
-        {"message_type": 1, "content": "hello", "private": False},
-        {"message_type": 1, "content": "internal note", "private": True},
-        {"message_type": 2, "content": "assigned", "private": False},
-    ]}
-    client = ChatwootClient("https://chat.example", 1, "t", transport=httpx.MockTransport(lambda r: httpx.Response(200, json=payload)))
-    assert asyncio.run(client.history(5)) == [{"role": "user", "content": "hi"}, {"role": "assistant", "content": "hello"}]
+def test_bot_posts_messages_and_hands_off() -> None:
+    seen: list[tuple[str, str, dict]] = []
+
+    def chatwoot(request: httpx.Request) -> httpx.Response:
+        seen.append((request.url.path, request.headers["api_access_token"], json.loads(request.content)))
+        return httpx.Response(200, json={})
+
+    client = ChatwootClient("https://chat.example", 1, "t", transport=httpx.MockTransport(chatwoot))
+    asyncio.run(client.send_message(5, "hello"))
+    asyncio.run(client.hand_off(5))
+    assert seen == [
+        ("/api/v1/accounts/1/conversations/5/messages", "t", {"content": "hello", "message_type": "outgoing", "private": False}),
+        ("/api/v1/accounts/1/conversations/5/toggle_status", "t", {"status": "open"}),
+    ]
 
 
 # Model client ------------------------------------------------------------------------------------
@@ -207,3 +212,38 @@ def test_store_round_trip() -> None:
     store.remove(item.id)
     assert store.pending() == []
     assert json.dumps({"ok": True})
+
+
+def test_store_keeps_each_chats_turns_and_forgets_old_ones() -> None:
+    from connector.store import CHAT_KEEP_DAYS, CHAT_KEEP_MESSAGES, Store
+
+    store = Store(":memory:")
+    store.add_message(7, "user", "hi", now=0)
+    store.add_message(7, "assistant", "hello", now=1)
+    store.add_message(8, "user", "another visitor", now=2)
+    assert store.history(7) == [{"role": "user", "content": "hi"}, {"role": "assistant", "content": "hello"}]
+    assert store.history(7, limit=1) == [{"role": "assistant", "content": "hello"}]
+
+    for n in range(CHAT_KEEP_MESSAGES + 5):
+        store.add_message(9, "user", f"message {n}", now=10 + n)
+    kept = store.history(9, limit=CHAT_KEEP_MESSAGES + 5)
+    assert len(kept) == CHAT_KEEP_MESSAGES and kept[-1]["content"] == f"message {CHAT_KEEP_MESSAGES + 4}"
+
+    store.add_message(10, "user", "a month later", now=CHAT_KEEP_DAYS * 86_400 + 100)
+    assert store.history(7) == store.history(8) == store.history(9) == []
+    assert store.history(10) == [{"role": "user", "content": "a month later"}]
+
+
+def test_store_forgets_one_chat_on_request() -> None:
+    from connector.store import Store
+
+    store = Store(":memory:")
+    store.add_message(7, "user", "please delete this")
+    store.mark_lead(7)
+    store.add_pending("lead", {"lead": {"name": "A"}, "conversation_id": 7})
+    store.add_message(8, "user", "keep this")
+    store.add_pending("lead", {"lead": {"name": "B"}, "conversation_id": 8})
+    store.forget_conversation(7)
+    assert store.history(7) == [] and not store.conversation(7).lead_created
+    assert store.history(8) == [{"role": "user", "content": "keep this"}]
+    assert [item.payload["conversation_id"] for item in store.pending()] == [8]
