@@ -1,12 +1,19 @@
 ---
 name: use-the-graph
-description: Look up the business knowledge graph before answering any business question (sales, pricing, follow-up, marketing, delivery, cash, reviews, local visibility, websites, regulated clients). Returns the rules to apply and the answer format.
-whenToUse: Any question about running, selling, marketing, pricing, delivering or building for the business, and before drafting a proposal, follow-up, review reply, status note or site plan.
+description: Look up the knowledge graphs before answering any business question (sales, pricing, follow-up, marketing, delivery, cash, reviews, local visibility, regulated clients) or doing website work (one stage at a time). Returns the rules to apply and the answer format.
+whenToUse: Any question about running, selling, marketing, pricing, delivering or building for the business; before drafting a proposal, follow-up, review reply, status note or site plan; and at the start of every website stage.
 ---
 
 # Use the graph
 
-The business knowledge graph holds the rules a practical business manager applies. Read the relevant topics before answering, and cite them.
+Two graphs are loaded together: the business graph (the rules a practical business manager applies) and the website craft graph (how to build a distinctive, honest site, stage by stage). Read the relevant topics before answering, and cite them.
+
+For website work, look up only the stage you are in:
+
+```bash
+python3 scripts/graph.py brief --stage <brief|direction|copy|sample|build|review|handoff> "<the client and the question>"
+python3 scripts/graph.py stages
+```
 
 ## Steps
 
@@ -26,7 +33,7 @@ The business knowledge graph holds the rules a practical business manager applie
    python3 scripts/graph.py list
    ```
 
-3. Answer in this shape:
+3. For business questions, answer in this shape (website stages follow their own stage topic instead):
    - **Constraint:** what is actually holding this back
    - **Next move:** one concrete action, with an owner and a date
    - **Failure mode:** the mistake to avoid

@@ -49,6 +49,34 @@ def test_broken_graphs_fail(tmp_path: Path, graph: dict) -> None:
     assert check_graph.check(_write(tmp_path, graph)) is False
 
 
-def test_shipped_graphs_pass() -> None:
-    for path in sorted((ROOT / "knowledge").glob("*.grag.json")):
-        assert check_graph.check(str(path)) is True, path.name
+def test_shipped_graphs_pass_together() -> None:
+    # The README command: active graphs are checked as one set, the archived v1.1 on its own.
+    paths = [str(p) for p in sorted((ROOT / "knowledge").glob("*.grag.json"))]
+    assert len(paths) == 3
+    assert check_graph.check_set(paths) is True
+
+
+def _named(tmp_path: Path, name: str, graph: dict) -> str:
+    path = tmp_path / name
+    path.write_text(json.dumps(graph), encoding="utf-8")
+    return str(path)
+
+
+def test_cross_file_links_pass_when_checked_together(tmp_path: Path) -> None:
+    a = _named(tmp_path, "a.grag.json", {"nodes": [_node("one"), _node("two")], "edges": [_edge("one", "two")]})
+    b = _named(tmp_path, "b.grag.json", {"nodes": [_node("three")], "edges": [_edge("three", "one")]})
+    assert check_graph.check(b) is False
+    assert check_graph.check_set([a, b]) is True
+
+
+def test_duplicate_ids_across_active_files_fail(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    a = _named(tmp_path, "a.grag.json", {"nodes": [_node("one"), _node("two")], "edges": [_edge("one", "two")]})
+    b = _named(tmp_path, "b.grag.json", {"nodes": [_node("one"), _node("three")], "edges": [_edge("one", "three")]})
+    assert check_graph.check_set([a, b]) is False
+    assert "a.grag.json" in capsys.readouterr().out
+
+
+def test_archives_are_checked_on_their_own(tmp_path: Path) -> None:
+    active = _named(tmp_path, "g.grag.json", {"nodes": [_node("one"), _node("two")], "edges": [_edge("one", "two")]})
+    archive = _named(tmp_path, "g.v1.1.grag.json", {"nodes": [_node("one"), _node("two")], "edges": [_edge("two", "one")]})
+    assert check_graph.check_set([active, archive]) is True

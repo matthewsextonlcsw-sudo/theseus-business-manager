@@ -37,6 +37,17 @@ Name · address · phone · hours · services · service area · Google Business
 - Regulated-client rules that apply:
 - Who will edit the site later, and how:
 
+## Assets and rights
+- Photos we may use (who took them, written permission?):
+- Logo, brand colors, brand fonts:
+- Existing site and Google Business Profile URLs:
+- Missing assets that block the design (each is a question for Matthew):
+
+## Design read
+- Reading this as: <kind of site> for <audience>, with a <feel> language.
+- Dials: variance <1-10> · motion <1-10> · density <1-10> (see [design_read])
+- Sites the client or Matthew likes, and what exactly they like about each:
+
 ## Measures
 - Baseline today (inquiries per month, calls, form fills, profile actions):
 - What should change, and when we will check:

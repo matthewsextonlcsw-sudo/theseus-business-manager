@@ -1,0 +1,1909 @@
+{
+  "graph_meta": {
+    "name": "MWS website craft graph",
+    "version": "1.0",
+    "checked": "2026-10-10",
+    "purpose": "How Theseus and other agents build small-business websites that are distinctive, fast, accessible and truthful: the stages and gates, the design decisions, the failures to catch, and the review rubric.",
+    "usage": "Work one stage at a time and read only that stage's topics: graph.py brief --stage <stage> \"<question>\". Read the project's state file first and resume at its stage. Gates need Matthew's approval in words, recorded in the state file; silence is never approval. promise_integrity and regulated_clients (business graph) override every design preference. Never invent facts, reviews, people, or pictures of the business. Judge design from screenshots you have actually seen.",
+    "changelog": "1.0 (2026-10-10): first version. 42 topics distilled, in original wording, from Anthropic's frontend-design skill, taste-skill, Impeccable, Vercel's Web Interface Guidelines, UI UX Pro Max, gogh's conflict resolutions, WCAG 2.2 and web.dev, plus the MWS Consulting site as the studio reference.",
+    "sources": [
+      "github.com/anthropics/skills (frontend-design, Apache-2.0)",
+      "github.com/Leonxlnx/taste-skill (MIT)",
+      "github.com/pbakaus/impeccable (Apache-2.0)",
+      "github.com/vercel-labs/web-interface-guidelines (MIT)",
+      "github.com/nextlevelbuilder/ui-ux-pro-max-skill (MIT)",
+      "github.com/AgriciDaniel/gogh (Apache-2.0)",
+      "github.com/emilkowalski/skills (MIT)",
+      "w3.org/TR/WCAG22 and its understanding documents",
+      "web.dev (LCP, responsive images, font best practices)"
+    ],
+    "seed_hints": [
+      {
+        "ask": "Build a website for a new client.",
+        "seeds": [
+          "site_stage_brief",
+          "site_project_state",
+          "design_read"
+        ]
+      },
+      {
+        "ask": "Show me two design directions.",
+        "seeds": [
+          "site_stage_direction",
+          "art_direction",
+          "hero_compositions"
+        ]
+      },
+      {
+        "ask": "The site looks bland, cheap or generic.",
+        "seeds": [
+          "looks_cheap_fixes",
+          "anti_slop",
+          "art_direction"
+        ]
+      },
+      {
+        "ask": "Which fonts should the site use?",
+        "seeds": [
+          "type_pairing",
+          "type_scale_hierarchy",
+          "font_loading"
+        ]
+      },
+      {
+        "ask": "Make or choose the hero picture.",
+        "seeds": [
+          "hero_compositions",
+          "imagery_sourcing",
+          "image_art_direction"
+        ]
+      },
+      {
+        "ask": "Pick the colors.",
+        "seeds": [
+          "color_system",
+          "contrast_checks"
+        ]
+      },
+      {
+        "ask": "Write the homepage copy.",
+        "seeds": [
+          "site_stage_copy",
+          "site_copy_voice",
+          "hero_first_screen"
+        ]
+      },
+      {
+        "ask": "Review my screenshots.",
+        "seeds": [
+          "site_stage_review",
+          "visual_review_rubric",
+          "looks_cheap_fixes"
+        ]
+      },
+      {
+        "ask": "Website for a bike shop or repair shop.",
+        "seeds": [
+          "pattern_trades_repair",
+          "hero_compositions"
+        ]
+      },
+      {
+        "ask": "Website for a therapist or clinic.",
+        "seeds": [
+          "pattern_clinical_practice",
+          "regulated_clients"
+        ]
+      },
+      {
+        "ask": "Website for a restaurant or cafe.",
+        "seeds": [
+          "pattern_restaurant_cafe",
+          "imagery_sourcing"
+        ]
+      },
+      {
+        "ask": "Where were we on this site?",
+        "seeds": [
+          "site_project_state"
+        ]
+      }
+    ],
+    "stages": [
+      {
+        "stage": "brief",
+        "topic": "site_stage_brief",
+        "gate": "Matthew approves brief.md"
+      },
+      {
+        "stage": "direction",
+        "topic": "site_stage_direction",
+        "gate": "Matthew picks one of two routes"
+      },
+      {
+        "stage": "copy",
+        "topic": "site_stage_copy",
+        "gate": "Matthew approves the sitemap and copy"
+      },
+      {
+        "stage": "sample",
+        "topic": "site_stage_sample",
+        "gate": "Matthew approves the rendered hero and next section"
+      },
+      {
+        "stage": "build",
+        "topic": "site_stage_build",
+        "gate": "no gate; go to review"
+      },
+      {
+        "stage": "review",
+        "topic": "site_stage_review",
+        "gate": "rubric passes and every check is green"
+      },
+      {
+        "stage": "handoff",
+        "topic": "site_stage_handoff",
+        "gate": "publishing needs Matthew's separate OK"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "id": "site_stage_brief",
+      "type": "process",
+      "label": "Stage 1 - Brief and asset inventory",
+      "aliases": [
+        "website brief",
+        "start a website",
+        "new website",
+        "site brief",
+        "asset inventory",
+        "build a website for",
+        "make a website"
+      ],
+      "stages": [
+        "brief"
+      ],
+      "knowledge": "Before any design, write brief.md and get Matthew's approval. A site built on guesses looks generic because the guesses are generic.\n\nDo:\n- Name the business, who it serves, the outcome they buy, and the ONE primary action (call, book, visit, buy, get a quote).\n- List confirmed facts only: services, prices, hours, address, phone, licenses, years in business. Mark anything unconfirmed as a question.\n- Inventory assets and rights: photos (who took them, may we use them), logo, brand colors or fonts, existing site, Google Business Profile.\n- Write the \"design read\" in one line (see design_read).\n- Note constraints: regulated client, deadline, integrations, accessibility needs.\n- Ask Matthew for 2-3 sites the client likes, and what they like about each.\n\nAvoid:\n- Starting from a template's sections and filling them in. Start from the business.\n- Inventing anything to fill a gap. A gap is a question for Matthew.\n\nCheck: every fact in brief.md has a source; the primary action is one verb; missing assets are listed as blockers.\n\nGate: Matthew approves brief.md. Record it in the state file.\n\nSources: Anthropic frontend-design skill, \"ground your designs in the subject matter\" (github.com/anthropics/skills, Apache-2.0); taste-skill brief inference (github.com/Leonxlnx/taste-skill, MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "site_stage_direction",
+      "type": "process",
+      "label": "Stage 2 - Two directions to choose from",
+      "aliases": [
+        "direction board",
+        "design direction",
+        "mood board",
+        "moodboard",
+        "two options",
+        "design options",
+        "art direction board",
+        "choose a look"
+      ],
+      "stages": [
+        "direction"
+      ],
+      "knowledge": "Show Matthew TWO genuinely different routes on one compact board, and recommend one. Two routes force a real decision; one route is a default in disguise.\n\nEach route has:\n1. A concept sentence tied to the business (\"a workbench: honest tools, grease-dark surfaces, orange tags\").\n2. Three visual traits.\n3. Two reference sites you actually opened, with one specific takeaway each.\n4. Type system: display and body faces, or one family, with the reason.\n5. Palette: 4-6 named hex values, with contrast ratios for text pairs.\n6. Hero composition (from hero_compositions) and what picture it needs.\n7. Imagery plan: source, style, subjects.\n8. Phone plan: what the first phone screen shows.\n9. One memorable detail that belongs to this business.\n\nDo:\n- Make the routes differ in composition, type and color, not just color.\n- Write an ASCII sketch of each hero and the next section.\n- Say which route you recommend and why, in one sentence.\n\nAvoid:\n- Two routes that are the same layout recolored.\n- Routes that match an AI default (anti_slop): cream + serif + clay, near-black + one acid accent, the card kit.\n\nCheck: Matthew could tell the two routes apart from the concept sentences alone.\n\nGate: Matthew picks a route. Record the pick in the state file.\n\nSources: Anthropic frontend-design two-pass plan; impeccable new-work directions (github.com/pbakaus/impeccable, Apache-2.0). Checked 2026-10-10."
+    },
+    {
+      "id": "site_stage_copy",
+      "type": "process",
+      "label": "Stage 3 - Sitemap and copy",
+      "aliases": [
+        "sitemap",
+        "page list",
+        "write copy",
+        "website copy",
+        "page copy",
+        "content plan",
+        "headlines"
+      ],
+      "stages": [
+        "copy"
+      ],
+      "knowledge": "Write sitemap.md and the real copy for every page before design spreads. Design without real copy is decoration around lorem ipsum.\n\nDo:\n- For each page: its one intent and its primary action.\n- For each section: the visitor's question it answers, the answer, and the next action. If a section answers no question, cut it.\n- Hero copy fits the first-screen rules (hero_first_screen): headline of 8 words or fewer, subtext of 20 words or fewer.\n- Use the client's own facts and words. Prices only if confirmed.\n- One label per intent across the whole site: if the action is \"Book a tune-up\", it is never also \"Get started\" or \"Contact us\".\n\nAvoid:\n- Sections that exist because the template had them (mission statement, \"Why choose us\" with three vague cards).\n- Cute or \"thoughtful-sounding\" lines that say nothing. Plain beats clever.\n- Invented numbers, reviews, awards or results.\n\nCheck: read only the headlines down the page; they should tell the story and lead to the action.\n\nGate: Matthew approves the copy. Record it in the state file.\n\nSources: taste-skill copy self-audit and content density (MIT); Vercel Web Interface Guidelines, content (github.com/vercel-labs/web-interface-guidelines, MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "site_stage_sample",
+      "type": "process",
+      "label": "Stage 4 - Rendered sample (hero plus next section)",
+      "aliases": [
+        "rendered sample",
+        "design sample",
+        "preview the design",
+        "hero preview",
+        "first render",
+        "show screenshots",
+        "prototype"
+      ],
+      "stages": [
+        "sample"
+      ],
+      "knowledge": "Build only the hero and the next substantial section, in the chosen direction, with the approved copy and the real picture. Show Matthew screenshots at phone (390 x 844) and desktop (1280 x 800). A palette and a font list are not a design; pixels are.\n\nDo:\n- Set the design tokens first (type, color, spacing, radius), then build the two sections with them.\n- Get the hero picture now (imagery_sourcing). If it cannot exist yet, say so; do not ship a gray box.\n- Take the screenshots, look at them yourself, score them with visual_review_rubric, and fix the three weakest things before showing.\n- Show the screenshots beside the direction board so Matthew can see the idea became a page.\n\nAvoid:\n- Building the whole site before this gate. A bad direction costs one section here and ten sections later.\n- Showing a first render. The first render is a draft.\n\nCheck: on the phone screenshot, without scrolling, you can see who it is for, what they get, the action, and a real visual.\n\nGate: Matthew approves the look. Only then does it spread to every page.\n\nSources: Codex review of the Theseus upgrade (render, inspect, revise); Anthropic frontend-design self-critique with screenshots. Checked 2026-10-10."
+    },
+    {
+      "id": "site_stage_build",
+      "type": "process",
+      "label": "Stage 5 - Full build",
+      "aliases": [
+        "build the site",
+        "full build",
+        "build all pages",
+        "implement the design",
+        "code the site"
+      ],
+      "stages": [
+        "build"
+      ],
+      "knowledge": "Apply the approved tokens, pictures and section plan to every page. Keep the sample's level: the last page should look as considered as the hero.\n\nDo:\n- Use the tokens only. A new color, font, radius or shadow that is not in the tokens is a bug.\n- Choose sections from the copy plan, not from the starter's component list. Omit a section that has no real content.\n- Vary layout families down the page (layout_grid_rhythm). No more than two image-text splits in a row.\n- Build mobile first, and declare what every multi-column section does under 768px.\n- Make every link, button and form work, with hover, focus, active, disabled, loading and error states.\n- Keep JavaScript to features that need it.\n\nAvoid:\n- Filling every component the starter offers.\n- Letting quality drop on inner pages (services, visit, privacy).\n\nCheck: open each page at phone and desktop width; nothing overflows sideways; every action works.\n\nNo gate here: the next stop is the review loop.\n\nSources: taste-skill layout discipline (MIT); Vercel Web Interface Guidelines (MIT); impeccable craft floor (Apache-2.0). Checked 2026-10-10."
+    },
+    {
+      "id": "site_stage_review",
+      "type": "process",
+      "label": "Stage 6 - Review and fix loop",
+      "aliases": [
+        "review the site",
+        "qa the design",
+        "screenshot review",
+        "polish",
+        "fix the design",
+        "self review",
+        "check my screenshots",
+        "looks bad"
+      ],
+      "stages": [
+        "review"
+      ],
+      "knowledge": "Review in bounded rounds, not an endless loop: one full inspection, one batch of fixes, one confirming inspection. Then stop polishing and report.\n\nRound:\n1. Run the mechanical checks (qa script): overflow, broken media, contrast, fonts, forms, links.\n2. Screenshot every page at 390 x 844 and 1280 x 800 (first screen and full page). Look at them. You can see images; use that.\n3. Score the home page and one inner page with visual_review_rubric, citing what you see.\n4. Name the three weakest visual decisions in plain words (\"hero headline wraps to 4 lines on phone\").\n5. Fix all three in one batch, re-shoot, re-score.\n\nDo:\n- Judge from the screenshots, not from your memory of the code.\n- Fix causes, not symptoms (a 4-line headline is a font-size or width error, not a copy error).\n\nAvoid:\n- Calling the first render finished.\n- A third, fourth, fifth round of tiny tweaks. After the confirming round, report what is left.\n- Claiming you saw a screenshot you could not open. Say \"visual review pending\" instead.\n\nCheck: rubric passes (26/30, nothing under 2, 3 on direction and hero) and every mechanical check is green.\n\nSources: impeccable \"verify in bounded passes\" (Apache-2.0); Anthropic frontend-design self-critique; taste-skill pre-flight. Checked 2026-10-10."
+    },
+    {
+      "id": "site_stage_handoff",
+      "type": "process",
+      "label": "Stage 7 - Handoff and launch readiness",
+      "aliases": [
+        "handoff",
+        "deliver the site",
+        "launch",
+        "go live",
+        "launch record",
+        "finish the site"
+      ],
+      "stages": [
+        "handoff"
+      ],
+      "knowledge": "Deliver what Matthew needs to judge and run the site, and nothing that pretends to be more than it is.\n\nDeliver:\n- The preview link or local command.\n- Phone and desktop screenshots of every page.\n- The QA report and the final rubric scores.\n- Picture credits: source, license, and \"AI-generated\" where true.\n- Open issues, in order of importance.\n- Editing guide: where the facts live (site.ts), where the tokens live, how to change a picture.\n- The launch record (site_qa_launch) with today's date.\n\nDo:\n- Separate what you tested locally from what only a real launch can prove (forms reaching a person, search indexing, real-phone speed).\n- Keep the business's accounts and files in the client's hands.\n\nAvoid:\n- Publishing or pointing a domain without Matthew's separate OK.\n- Saying \"done\" while a check is failing or a picture is missing.\n\nCheck: someone who never saw the chat could take over the site from the handoff alone.\n\nSources: business graph site_qa_launch; Vercel Web Interface Guidelines, no dead ends (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "site_project_state",
+      "type": "process",
+      "label": "Project state and approvals",
+      "aliases": [
+        "state file",
+        "resume",
+        "where were we",
+        "approvals",
+        "pick up where we left off",
+        "what stage"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "copy",
+        "sample",
+        "build",
+        "review",
+        "handoff"
+      ],
+      "knowledge": "Every site project keeps a small state file so work resumes at the right stage without asking twice: .theseus/site-state.json in the project folder.\n\nIt holds:\n- stage: brief, direction, copy, sample, build, review or handoff\n- approvals: for each gate, who approved, when, and what exactly (file and version)\n- decisions: the chosen route, fonts, palette, hero composition, primary action label\n- open questions and blockers (missing photos, unconfirmed prices)\n\nDo:\n- Read the state file first, every session. Resume at its stage.\n- Write a gate's approval only when Matthew actually approved it in words.\n- When a later change touches an approved decision (new palette after the sample), say so and ask; do not silently re-open a gate.\n\nAvoid:\n- Treating silence, time passing, or \"looks fine I guess\" from yourself as approval.\n- Re-asking for an approval that is recorded.\n\nCheck: the state file names the stage you are working in, and every gate behind you has an approval line.\n\nExample:\n{\"stage\": \"sample\", \"approvals\": {\"brief\": \"Matthew 2026-10-12 brief.md v2\", \"direction\": \"Matthew 2026-10-12 route B\"}, \"decisions\": {\"route\": \"B workbench\", \"primary_action\": \"Book a tune-up\"}}\n\nSources: Codex review of the Theseus upgrade (resume without repeating approvals). Checked 2026-10-10."
+    },
+    {
+      "id": "art_direction",
+      "type": "craft",
+      "label": "Art direction - choosing a world for the business",
+      "aliases": [
+        "art direction",
+        "visual direction",
+        "concept",
+        "visual identity",
+        "look and feel",
+        "make it premium",
+        "make it dope",
+        "distinctive",
+        "not generic",
+        "make it pop",
+        "stand out",
+        "wow factor",
+        "homepage design"
+      ],
+      "stages": [
+        "direction",
+        "sample"
+      ],
+      "knowledge": "A distinctive site comes from the business's own world: its materials, tools, place and vocabulary. A bike shop has chain grease, steel, orange tags and hand-written tickets; a therapist has quiet rooms, daylight and plain speech. Build the look from that, not from \"modern and clean\".\n\nDo:\n- Find the most characteristic thing in the business's world and open the page with it (a real photo, an object, a headline in the business's own voice).\n- Spend boldness in ONE place: one memorable detail (a tag-shaped price label, a hand-drawn route map, a big real photo). Keep everything around it quiet and disciplined.\n- Let the world reach the whole page: the type, the surfaces and the picture style, not just one accent color on a neutral template.\n- Write a concept sentence a non-designer understands.\n- Before building, compare your plan to the generic page you would make for any similar business. Change whatever matches.\n\nAvoid:\n- \"Modern, clean, professional\" as a direction. That describes every template.\n- Decoration that no part of the business explains.\n- Copying another brand's identity. Borrow principles, never logos, layouts wholesale or images.\n\nCheck: hide the logo and name; could this page belong to a competitor? If yes, it has no direction yet.\n\nRemove one accessory before you finish: cut the one decoration that serves nothing.\n\nSources: Anthropic frontend-design, \"ground your designs in the subject matter\" and \"restraint\" (Apache-2.0); impeccable worlds and comps (Apache-2.0). Checked 2026-10-10."
+    },
+    {
+      "id": "browser_surfaces_polish",
+      "type": "craft",
+      "label": "Finishing details the browser shows",
+      "aliases": [
+        "polish",
+        "finishing touches",
+        "details",
+        "scrollbar",
+        "text selection",
+        "focus ring style",
+        "favicon",
+        "theme color",
+        "typographic quotes"
+      ],
+      "stages": [
+        "build",
+        "review"
+      ],
+      "knowledge": "The parts you did not draw still ship. Themed browser details are the cheapest sign that a site was built, not assembled.\n\nDo:\n- Text selection color from the palette (::selection).\n- Focus rings styled from the palette, with offset, never removed.\n- Link underline thickness and offset set on purpose.\n- Scrollbar color matched to the theme where supported (scrollbar-color), especially on dark sites.\n- color-scheme and the theme-color meta so phone browser bars match the page.\n- Favicon and a social preview image in the brand.\n- Typographic quotes (\" \") and the ellipsis character (…), non-breaking spaces between numbers and units (20 min, $15).\n- Tabular numbers for prices and hours in tables.\n- No widows: one word alone on a headline's last line.\n- A helpful 404 page in the site's design.\n\nAvoid:\n- Default blue links and default form controls on a designed page.\n- Straight quotes and three dots in headlines.\n\nCheck: select some text, tab through, open the page on a phone with a dark browser bar, visit a broken link; every surface looks like the same site.\n\nSources: impeccable craft floor, browser surfaces (Apache-2.0); Vercel Web Interface Guidelines, content and design (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "color_system",
+      "type": "craft",
+      "label": "Color system",
+      "aliases": [
+        "colors",
+        "palette",
+        "color scheme",
+        "brand colors",
+        "dark mode",
+        "light mode",
+        "accent color",
+        "background color"
+      ],
+      "stages": [
+        "direction",
+        "sample",
+        "build"
+      ],
+      "knowledge": "A palette is a system of surfaces, text and one accent, not a list of favorite colors. Name 4-6 tokens and use only those.\n\nDo:\n- Tokens: background, surface, raised surface, text, muted text, line, accent, and a soft tint of the accent. Add success, warning and error colors only where forms need them.\n- One temperature of neutrals per site: warm greys or cool greys, never both.\n- One accent, used the same way everywhere (actions and key highlights). A rose site does not get a teal button in the footer.\n- Choose light or dark from where and when people look (a late-night bar menu, a bright clinic lobby), not from the category.\n- Section tints within the same theme family are fine; one deliberate full inverse band is allowed if it marks a moment.\n- Tint borders and shadows toward the surface color; shadows have offset and blur.\n- Set color-scheme and the theme-color meta so browser chrome matches.\n\nPalette families to rotate (pick by the business's world, do not reuse the last client's): forest green + bone + amber; off-black + warm tan; cobalt + one neutral; terracotta + cool slate; olive + brick + paper; monochrome + one saturated pop; silver-grey + smoke.\n\nAvoid:\n- Defaulting to cream + brass + espresso for \"premium\", or near-black + neon for \"modern\".\n- Purple-blue gradients and glow as decoration.\n- Saturated colors over about 80% saturation on large areas.\n\nCheck: list every color in the CSS; anything not in the tokens is a bug.\n\nSources: taste-skill color calibration and palette families (MIT); impeccable colorize and refuse list (Apache-2.0); Vercel Web Interface Guidelines, design (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "design_read",
+      "type": "craft",
+      "label": "Design read and the three dials",
+      "aliases": [
+        "design read",
+        "read the room",
+        "how bold",
+        "how much motion",
+        "density",
+        "dials",
+        "variance",
+        "vibe",
+        "how should it feel"
+      ],
+      "stages": [
+        "brief",
+        "direction"
+      ],
+      "knowledge": "Before designing, state one line: \"Reading this as: <kind of site> for <audience>, with a <feel> language.\" Then set three dials from 1 to 10. They keep a local model from defaulting to the same page every time.\n\n- VARIANCE: 1 = strict symmetry, 10 = bold asymmetry and surprise.\n- MOTION: 1 = static, 10 = cinematic.\n- DENSITY: 1 = gallery-airy, 10 = packed with information.\n\nStarting points for small-business sites (adjust from the brief):\n- Trades and repair: variance 6, motion 3, density 5.\n- Restaurant or cafe: variance 7, motion 4, density 4.\n- Retail shop: variance 7, motion 4, density 5.\n- Therapy or clinic: variance 3, motion 2, density 4.\n- Professional services (law, accounting): variance 4, motion 2, density 5.\n- Creative studio: variance 8, motion 6, density 3.\n\nDo:\n- Let the audience pick the feel, not your taste. A procurement panel and a design-conscious diner want different pages.\n- Write the dials into the direction board and the state file.\n\nAvoid:\n- High motion for trust-first clients. Calm is the feature.\n- The same dials for every client.\n\nCheck: the read names the audience, and the dials match the client type or say why not.\n\nSources: taste-skill brief inference and three dials (github.com/Leonxlnx/taste-skill, MIT); presets adapted for local businesses by MWS. Checked 2026-10-10."
+    },
+    {
+      "id": "font_loading",
+      "type": "craft",
+      "label": "Loading fonts fast",
+      "aliases": [
+        "font loading",
+        "self host fonts",
+        "woff2",
+        "fontsource",
+        "font display",
+        "font flash",
+        "layout shift fonts",
+        "google fonts download"
+      ],
+      "stages": [
+        "build",
+        "review"
+      ],
+      "knowledge": "A beautiful face that arrives late costs speed and makes the page jump. Self-host and load only what the page uses.\n\nDo:\n- Self-host woff2 files (for example from the @fontsource packages or the Google Fonts download), not a third-party stylesheet.\n- Load only the weights and styles in the tokens: usually 2-3 files total. Use a variable font if you need several weights.\n- Subset to the scripts you use (Latin for most local sites).\n- font-display: swap for body text; preload only the one or two faces used above the fold.\n- Give the fallback similar metrics (size-adjust, ascent-override) so the swap does not shift the layout.\n- Studio budget: about 200 KB of fonts in total. It is an internal target, not a web standard.\n- Keep the font's license file in the project.\n\nAvoid:\n- Six weights \"just in case\".\n- Preloading every font file.\n- Loading fonts from a CDN the client does not control.\n\nCheck: in the browser, the screenshot shows the real faces (not the fallback); font transfer stays near the budget; no visible jump when fonts arrive.\n\nSources: web.dev font best practices (web.dev/articles/font-best-practices); Vercel Web Interface Guidelines, preload and subset fonts (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "forms_that_convert",
+      "type": "craft",
+      "label": "Forms that people finish",
+      "aliases": [
+        "contact form",
+        "booking form",
+        "quote form",
+        "form design",
+        "form fields",
+        "form errors",
+        "lead form"
+      ],
+      "stages": [
+        "build",
+        "review"
+      ],
+      "knowledge": "A form is a conversation with a stranger. Ask only what the next step needs, and make every error easy to fix.\n\nDo:\n- Fewest fields that let a person reply: usually name, a way to reply (email or phone), and one open question.\n- Labels above inputs, always visible. Placeholders show an example, never replace the label.\n- The right input types and autocomplete (email, tel, name) so phones show the right keyboard and autofill works.\n- Errors next to their field, in words that say how to fix it; on submit, move focus to the first error. Keep what the person typed.\n- Keep the submit button enabled until sending starts; then show \"Sending…\".\n- After sending, say what happens next and when.\n- The form works without JavaScript; with JavaScript it improves.\n- Inputs at 16 px or larger on phones.\n\nAvoid:\n- \"How did you hear about us\", budget dropdowns, or a phone number required before any trust is earned.\n- Blocking paste or typing.\n- Health details, diagnoses or insurance numbers on any clinical form.\n\nCheck: fill the form on a phone, make each mistake once, and submit; every message is clear and nothing typed is lost.\n\nSources: Vercel Web Interface Guidelines, forms (MIT); taste-skill form patterns (MIT); business graph cro and regulated_clients. Checked 2026-10-10."
+    },
+    {
+      "id": "hero_compositions",
+      "type": "craft",
+      "label": "Hero compositions - seven to choose from",
+      "aliases": [
+        "hero layout",
+        "hero image",
+        "hero design",
+        "hero composition",
+        "full bleed",
+        "split hero",
+        "hero picture",
+        "hero photo",
+        "hero video"
+      ],
+      "stages": [
+        "direction",
+        "sample"
+      ],
+      "knowledge": "Choose one composition per route on the direction board. Each needs specific assets; check they exist before choosing.\n\n1. Full-bleed photo with scrim: one wide photo of the place or the work in action, text over its calm area or a dark lower edge. Needs: a strong wide photo. Phone: crop to the focal point, text below the photo if it gets crowded.\n2. Asymmetric split: text in about 5 of 12 columns, photo in 7, bleeding to the screen edge. Needs: one good photo. Phone: photo under the headline, never above an empty first screen.\n3. Isolated object: one tool, product or dish, large, on a plain or textured ground. Needs: an object photo or a generated object with no people. Strong for repair, retail, food.\n4. Editorial type: the headline itself is the visual, set big in a characterful display face. Needs: a great face and great words. Choose it on purpose; plain text with a button is not this.\n5. Place-led: storefront, street or a drawn map beside address, hours and \"Get directions\". Needs: a real exterior photo or a map. For cafes and shops people visit.\n6. Work-led: a strip or grid of real finished work. Needs: real project photos the client owns. For trades and studios.\n7. Film hero: a poster image loads first, then a short muted loop with a pause button. Needs: real footage or an approved generated film. Matthew's own site uses this.\n\nAvoid:\n- Choosing a composition whose asset you do not have.\n- Text over the busiest part of a photo.\n\nCheck: the direction board names the composition and its asset; the sample screenshot matches it.\n\nSources: gpt-taste hero options (taste-skill, MIT); impeccable comps (Apache-2.0); MWS site. Checked 2026-10-10."
+    },
+    {
+      "id": "hero_first_screen",
+      "type": "craft",
+      "label": "Hero and the first screen",
+      "aliases": [
+        "hero",
+        "first screen",
+        "above the fold",
+        "hero section",
+        "hero headline",
+        "landing section",
+        "top of the page"
+      ],
+      "stages": [
+        "copy",
+        "sample",
+        "build",
+        "review"
+      ],
+      "knowledge": "The first screen decides whether a visitor stays. On a phone, without scrolling, it shows who the business is for, what they get, the action, and a real visual idea.\n\nDo:\n- Headline: 8 words or fewer, 2 lines on desktop (3 at most), in the business's specifics. Swap in a competitor's name; if the line still works, rewrite it.\n- Subtext: 20 words or fewer, saying what happens or what they get.\n- At most four text elements: optional small label, headline, subtext, actions (one primary, at most one secondary).\n- Primary action visible on the phone without scrolling, in its working form where possible: a tap-to-call button, a booking slot, an \"Order pickup\" button.\n- A real visual: the business's photo, a strong object, or a deliberately composed type treatment chosen on the direction board.\n- Navigation on one line on desktop, about 64-72 px tall.\n- Move trust strips, logos, prices and feature lists to the section below the hero.\n\nAvoid:\n- A tall empty gap above the headline (cap the top padding at about 6rem on desktop).\n- Text over a busy photo with no scrim or calm area.\n- Carousels, \"Welcome to\", stats rows, badges and pill tags in the hero.\n\nCheck: on the 390 x 844 screenshot, the four things are visible and readable without scrolling.\n\nSources: taste-skill hero discipline (MIT); impeccable persuade mode, \"the action in its working form\" (Apache-2.0); business graph website node. Checked 2026-10-10."
+    },
+    {
+      "id": "image_art_direction",
+      "type": "craft",
+      "label": "Directing a picture - the image brief",
+      "aliases": [
+        "image prompt",
+        "picture prompt",
+        "mkpicture prompt",
+        "image brief",
+        "photo style",
+        "art direct images",
+        "qwen image",
+        "generate a hero image"
+      ],
+      "stages": [
+        "direction",
+        "sample",
+        "build"
+      ],
+      "knowledge": "One visual language per site: the same light, palette, angle and finish across every picture. Write an image brief before taking, choosing or generating any picture.\n\nImage brief:\n- Subject, and why it belongs to this business.\n- Composition: angle (overhead, three-quarter, macro, wide), focal point, and which side stays calm for text.\n- Light: soft daylight, hard workshop light, warm evening.\n- Materials and textures: steel, linen, wood, paper.\n- Palette: words that match the site's tokens.\n- Crop: the slot's ratio (16:9 hero, 4:5 phone, 1:1 tile) and the phone crop.\n- Exclusions: no people, no faces, no hands, no text, no logos, no watermarks.\n\nPrompt pattern for the studio's picture maker:\n\"[subject], [angle] composition, focal point [left or right], calm empty area on the [side] for text, [light], [materials], [palette words], [mood]. No people, no hands, no text, no logos.\"\n\nDo:\n- Generate a few, pick the one that fits the brief, discard the rest.\n- Keep text out of pictures; text belongs in the page so it stays readable and searchable.\n- If the maker makes only squares, generate square and crop to the slot with a set focal point.\n\nAvoid:\n- Busy pictures behind headlines.\n- Mixing photo styles (one moody, one bright, one illustrated) on one site.\n\nCheck: lay all the site's pictures side by side; they should look like one shoot.\n\nSources: taste-skill image strategy (MIT); Anthropic frontend-design (Apache-2.0); the studio's media runbook, picture maker (2026-10-09). Checked 2026-10-10."
+    },
+    {
+      "id": "image_delivery",
+      "type": "craft",
+      "label": "Delivering pictures fast",
+      "aliases": [
+        "image size",
+        "image format",
+        "avif",
+        "webp",
+        "srcset",
+        "lazy loading",
+        "lcp image",
+        "hero preload",
+        "image compression",
+        "layout shift images"
+      ],
+      "stages": [
+        "build",
+        "review"
+      ],
+      "knowledge": "A great picture that loads slowly loses the visitor before it is seen.\n\nDo:\n- Use Astro's picture tools (astro:assets) or write srcset and sizes so each screen gets the right size.\n- Serve AVIF or WebP with a JPEG fallback.\n- Set width and height (or aspect-ratio) on every picture so nothing shifts as it loads.\n- The hero (usually the largest paint): never lazy-load it; set fetchpriority=\"high\". Preload it only if the browser finds it late (for example a CSS background), and use the responsive preload attributes so a second size is not downloaded.\n- Every picture below the first screen: loading=\"lazy\" and decoding=\"async\".\n- Studio budgets: about 200 KB for the phone hero and 350 KB for the desktop hero. These are internal targets, not web standards.\n- Meaningful alt text; alt=\"\" for purely decorative pictures.\n- Video: a poster image first, then muted, playsinline, loading after the page, with a pause button.\n\nAvoid:\n- A 4000 px photo scaled down by CSS.\n- Meaningful pictures as CSS backgrounds (no alt text, found late).\n- Lazy-loading the hero.\n\nCheck: in the browser, the hero is one request at a sensible size; layout shift stays near zero; total picture weight on the home page is reasonable for a phone.\n\nSources: web.dev optimize LCP (web.dev/articles/optimize-lcp) and responsive images (web.dev/articles/serve-responsive-images); Vercel Web Interface Guidelines, performance (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "imagery_sourcing",
+      "type": "craft",
+      "label": "Where pictures come from - and what never to generate",
+      "aliases": [
+        "images",
+        "photos",
+        "pictures",
+        "stock photos",
+        "ai images",
+        "generate images",
+        "image license",
+        "hero photo source",
+        "no images"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "sample",
+        "handoff"
+      ],
+      "knowledge": "Pictures carry most of a site's quality, and every picture is also a claim. Get them in this order:\n\n1. The client's own photos, with permission recorded (who took them, may we use them).\n2. Commissioned photos (a short shoot by a photographer or by Matthew).\n3. Generated pictures from the studio's picture maker, only for things that make no factual claim: textures, materials, tools or objects shown generically, abstract or atmospheric scenes. Its command is in Theseus's AGENTS.md under Pictures (exit 0 = done with the file path on the last line, 3 = the studio is busy, 4 = it failed).\n4. Licensed stock, with the license recorded.\n\nNever generate:\n- People who do not exist: staff, owners, customers, patients.\n- The client's premises, storefront, vehicles or team.\n- Finished work or products shown as theirs (\"our bikes\", \"our dishes\").\n- Before-and-after pictures of any kind.\n\nDo:\n- Record every picture in a manifest: file, source, license, and \"AI-generated\" where true.\n- If the hero picture does not exist, it is a blocker: ask Matthew for it, or choose an editorial-type hero on the direction board on purpose.\n\nAvoid:\n- Random stock that any business could use.\n- Placeholder grey boxes left in a delivered site.\n\nCheck: every picture in the build has a manifest line; no generated picture shows a person or poses as the business's real place, work or product.\n\nSources: business graph design_fundamentals and promise_integrity; taste-skill image strategy (MIT); the studio's media runbook (2026-10-09). Checked 2026-10-10."
+    },
+    {
+      "id": "interaction_states",
+      "type": "craft",
+      "label": "Interaction states - every control, every state",
+      "aliases": [
+        "hover",
+        "focus",
+        "active",
+        "disabled",
+        "loading state",
+        "error state",
+        "empty state",
+        "keyboard",
+        "focus ring",
+        "buttons",
+        "links"
+      ],
+      "stages": [
+        "build",
+        "review"
+      ],
+      "knowledge": "AI builds tend to design only the resting, successful state. Every control needs its whole life.\n\nDo:\n- Hover, focus-visible, active (pressed), disabled, loading, error, and success, for every button, link and input.\n- A visible focus ring that contrasts at least 3 to 1, shown for keyboard users (:focus-visible).\n- Interactive states increase contrast compared with the resting state.\n- Loading buttons keep their label and add a spinner or \"Sending…\".\n- Links are links (<a>) and actions are buttons (<button>); never a clickable <div>.\n- No dead zones: if part of a control looks clickable, all of it is.\n- Hit area at least 24 px everywhere and 44 px for main actions.\n- A skip link and a sensible tab order through the page.\n- Empty and error states say what happened and what to do next.\n\nAvoid:\n- Removing focus outlines without a replacement.\n- Disabled-looking buttons that are actually active, or the reverse.\n- Hover-only information (phones cannot hover).\n\nCheck: tab through the page with the keyboard; every control shows focus and works; submit a form empty and with errors.\n\nSources: Vercel Web Interface Guidelines, interactions and forms (MIT); taste-skill interactive UI states (MIT); impeccable craft floor, states (Apache-2.0). Checked 2026-10-10."
+    },
+    {
+      "id": "layout_grid_rhythm",
+      "type": "craft",
+      "label": "Layout, grid and section rhythm",
+      "aliases": [
+        "layout",
+        "grid",
+        "spacing",
+        "whitespace",
+        "section rhythm",
+        "alignment",
+        "monotonous",
+        "repetitive layout",
+        "cards",
+        "container width"
+      ],
+      "stages": [
+        "sample",
+        "build",
+        "review"
+      ],
+      "knowledge": "Rhythm is what makes a scroll feel designed: sections change pace, size and density on purpose.\n\nDo:\n- One spacing scale (for example 4, 8, 12, 16, 24, 32, 48, 72, 96 px). Tight inside groups, generous between sections.\n- Content width: about 1200-1380 px for the page, about 65 characters for reading text.\n- Every element aligns to something: a grid column, a text edge or an optical center.\n- Vary layout families down the page: full-bleed picture, split, list, gallery strip, band, map. Aim for 4 or more families on an 8-section page; avoid the same family twice in a row.\n- At most two image-and-text splits in a row (no endless zigzag).\n- Use cards only when elevation means something. Otherwise group with space or a line.\n- One corner-radius rule for the whole site (all square, all soft, or a written rule such as \"pill buttons, 12 px cards\"). Nested corners are smaller than their parent.\n- Higher variance dial: allow asymmetry (offset text, bleeding images). Lower: calm, even columns.\n\nAvoid:\n- Three equal cards as the answer to every section.\n- A small label above every heading.\n- \"Big headline left, small paragraph right\" section headers with nothing to say on the right.\n\nCheck: shrink the full-page screenshot until text is unreadable; you should still see changes in rhythm down the page.\n\nSources: taste-skill layout discipline (MIT); impeccable layout and craft floor (Apache-2.0); Vercel Web Interface Guidelines, layout (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "mobile_composition",
+      "type": "craft",
+      "label": "Phone layout",
+      "aliases": [
+        "mobile",
+        "phone layout",
+        "responsive",
+        "mobile first",
+        "small screen",
+        "tap targets",
+        "sticky button",
+        "mobile menu"
+      ],
+      "stages": [
+        "sample",
+        "build",
+        "review"
+      ],
+      "knowledge": "Most local customers arrive on a phone, often outside, often in a hurry. Design the 390 px screen first, then widen.\n\nDo:\n- Decide the stacking order on purpose for every multi-column section (what comes first on a phone, and why).\n- Tap targets at least 44 px for main actions (WCAG's minimum is 24 px; local customers use thumbs).\n- Phone numbers as tel: links, addresses as map links.\n- For call or book businesses, consider a slim sticky action bar at the bottom; make sure it never covers content or form buttons.\n- Form inputs at 16 px or larger so iPhones do not zoom.\n- Crop pictures for portrait: set a focal point or a separate phone crop.\n- Respect safe areas on notched phones.\n- Check at 320 px too: nothing overflows sideways.\n\nAvoid:\n- Hiding the primary action in the menu.\n- Hero images that push the headline below the first screen.\n- Tiny text links as the main way to act.\n\nCheck: the 390 x 844 screenshot passes the first-screen rules; the 320 px view has no sideways scroll; every action is reachable with a thumb.\n\nSources: WCAG 2.2 target size minimum (w3.org/WAI/WCAG22/Understanding/target-size-minimum); Vercel Web Interface Guidelines, interactions (MIT); taste-skill mobile collapse rule (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "motion_principles",
+      "type": "craft",
+      "label": "Motion - one good moment, not many",
+      "aliases": [
+        "animation",
+        "motion",
+        "transitions",
+        "scroll animation",
+        "parallax",
+        "hover effects",
+        "micro interactions",
+        "gsap",
+        "reduced motion"
+      ],
+      "stages": [
+        "direction",
+        "build",
+        "review"
+      ],
+      "knowledge": "Motion should explain something or mark one deliberate moment. Scattered effects on every section are an AI tell.\n\nDo:\n- Let the motion dial decide the amount. Trust-first clients: almost none.\n- One orchestrated moment beats many: one page-load sequence or one reveal.\n- Motion that answers an action is welcome: a menu opening, a form confirming, a button pressing.\n- Durations about 150-300 ms for interface changes, with an ease-out curve, starting from an already-visible state.\n- Animate transform and opacity. List the properties; never transition: all.\n- Button press feedback: scale to about 0.96, never below 0.95.\n- Provide a prefers-reduced-motion version that removes movement.\n- Content is fully visible without JavaScript and without animation.\n- Autoplaying video only when muted, non-essential, and with a pause button (anything moving over 5 seconds needs one).\n\nAvoid:\n- Fade-and-slide-up on every section; hover lift on every card.\n- Scroll hijacking, parallax and pinned scroll as defaults.\n- Animation libraries for effects plain CSS can do.\n\nCheck: with reduced motion turned on, the page still makes sense and nothing moves on its own.\n\nSources: Anthropic frontend-design, one orchestrated moment (Apache-2.0); gogh motion doctrine resolution (Apache-2.0); emilkowalski/skills (MIT); Vercel Web Interface Guidelines, animations (MIT); WCAG 2.2 pause, stop, hide. Checked 2026-10-10."
+    },
+    {
+      "id": "primary_action_design",
+      "type": "craft",
+      "label": "The primary action",
+      "aliases": [
+        "call to action",
+        "cta",
+        "book button",
+        "primary button",
+        "call now",
+        "get a quote",
+        "button label",
+        "conversion button"
+      ],
+      "stages": [
+        "copy",
+        "sample",
+        "build"
+      ],
+      "knowledge": "Every page has one primary action, and it looks and reads the same everywhere on the site.\n\nDo:\n- Name what the visitor gets or does: \"Book a tune-up\", \"Call the shop\", \"Reserve a table\", \"Get a free quote\". One to three words is best; never wrap to two lines on desktop.\n- One label per intent across the whole site (nav, hero, footer). \"Contact us\", \"Get in touch\" and \"Let's talk\" are one intent; pick one.\n- Offer the action in its working form where possible: a tap-to-call link, a booking widget, an order button, not a link to a page that has another link.\n- One primary button style, used only for the primary action. Secondary actions look clearly secondary.\n- Repeat the action after proof and at the end of the page.\n- Say what happens after the click (\"We confirm by text within the hour\"), and then make sure it is true.\n\nAvoid:\n- \"Submit\", \"Learn more\", \"Click here\".\n- Two different primary actions competing in the hero.\n- An arrow or icon on every button by habit.\n\nCheck: list every button label on the site; the primary intent has exactly one wording.\n\nSources: taste-skill CTA rules (MIT); impeccable persuade mode (Apache-2.0); Anthropic frontend-design writing (Apache-2.0); business graph website and cro. Checked 2026-10-10."
+    },
+    {
+      "id": "reference_analysis",
+      "type": "craft",
+      "label": "Studying reference sites",
+      "aliases": [
+        "reference sites",
+        "inspiration",
+        "sites i like",
+        "competitor sites",
+        "look at examples",
+        "references"
+      ],
+      "stages": [
+        "brief",
+        "direction"
+      ],
+      "knowledge": "References teach principles, not looks to copy. Open each one in your browser and write down specific, transferable observations.\n\nLook at, and name concretely:\n- Composition: where the eye lands first, how big the hero picture is, how text sits on it.\n- Type: display face character, size jump from headline to body, line length.\n- Spacing: how much room between sections, how tight groups are.\n- Crop: how photos are framed (tight detail, wide place, object on plain ground).\n- Color: how many colors, where the accent appears, light or dark.\n- Density: words per section, how much is shown at once.\n- Navigation and mobile: what happens at 390 px wide.\n\nDo:\n- Write one takeaway per reference as \"Take X, because Y\" (\"Take the oversized real photo with a dark lower edge, because it makes the headline readable without a box\").\n- Include one or two local competitors to see what customers already compare against.\n- Say plainly if you could not open a reference. Never describe a site you did not see.\n\nAvoid:\n- Copying layouts, logos, images, illustrations or copy. Those belong to the other brand.\n- Vague notes (\"clean, modern feel\").\n\nCheck: every takeaway names something visible and a reason.\n\nSources: impeccable reference analysis (Apache-2.0); taste-skill reference signals (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "section_patterns",
+      "type": "craft",
+      "label": "Section patterns - pick by the visitor's question",
+      "aliases": [
+        "sections",
+        "page sections",
+        "what sections",
+        "homepage sections",
+        "components",
+        "page structure",
+        "services section",
+        "faq section"
+      ],
+      "stages": [
+        "copy",
+        "build"
+      ],
+      "knowledge": "Every section answers one visitor question. If no question, no section. Choose from these and give each its own layout family.\n\n- Proof strip (right under the hero): \"Can I trust them?\" Real facts: years, licenses, guarantees, process promises. No invented numbers.\n- Services with prices: \"What do they do and what does it cost?\" A clear list or table with confirmed prices; better than icon cards.\n- Split feature: \"Tell me more about the main thing.\" One service in depth with its photo.\n- Gallery strip: \"Show me.\" Real work or the place, in one scrollable row or a tight grid.\n- Process steps: \"What happens if I book?\" Numbered, because it is a real sequence.\n- Owner or team: \"Who will I deal with?\" A real person and a real photo, or skip it.\n- Location and hours: \"Where and when?\" Address, hours, map link, tap-to-call, directions.\n- FAQ: \"What about...?\" Real questions customers ask; plain answers.\n- Final action band: the one primary action again, with one line of reassurance.\n\nDo:\n- Order by the buyer's questions for that business type (see the pattern topics).\n- Omit a section whose content does not exist yet; list it as a gap.\n\nAvoid:\n- \"Why choose us\" with three vague promises.\n- Testimonials you do not have. Never invent them.\n- Logo walls of companies that are not clients.\n\nCheck: write the visitor question next to each section in sitemap.md; every section has one.\n\nSources: taste-skill content density and section rules (MIT); business graph website and website_ia nodes. Checked 2026-10-10."
+    },
+    {
+      "id": "site_copy_voice",
+      "type": "craft",
+      "label": "Website copy that sounds like the business",
+      "aliases": [
+        "website copy",
+        "headline writing",
+        "copywriting for websites",
+        "tone",
+        "voice",
+        "wording",
+        "microcopy",
+        "error messages"
+      ],
+      "stages": [
+        "copy",
+        "review"
+      ],
+      "knowledge": "Words are part of the design. Copy can make a page look as templated as any layout.\n\nDo:\n- Write from the customer's side, in plain words they use (\"fix a flat\", not \"tire solutions\").\n- Specific beats clever: prices, times, places, names.\n- Active voice; sentence case for headings and buttons on marketing pages.\n- Headlines: 8 words or fewer in the hero, then one idea per section.\n- Short sections: a headline of about 8 words and a paragraph of about 25 words, plus one picture or one action. More only when the section's job needs it.\n- Keep the business's own vocabulary consistent: one name for each thing.\n- Errors and empty states say what happened and how to fix it, without apology or vagueness.\n- One voice per page; do not mix technical, poetic and salesy.\n\nSelf-audit before showing anything: re-read every visible string (headlines, buttons, alt text, footer, errors). Rewrite any line that is broken, vague, \"thoughtful-sounding\", or made of forced wordplay. Boring and true beats cute and wrong.\n\nAvoid:\n- Filler: \"We are passionate about...\", \"Your trusted partner\", \"Elevate your...\".\n- Invented numbers or results.\n- Accenting one word of a headline in another color or italic by habit.\n\nCheck: read the page aloud; every line says something a customer can use.\n\nSources: Anthropic frontend-design, writing in design (Apache-2.0); taste-skill copy self-audit (MIT); Vercel Web Interface Guidelines, copywriting (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "truthful_trust",
+      "type": "craft",
+      "label": "Trust without invented proof",
+      "aliases": [
+        "trust",
+        "testimonials",
+        "reviews",
+        "social proof",
+        "credibility",
+        "proof",
+        "logos",
+        "why choose us"
+      ],
+      "stages": [
+        "brief",
+        "copy",
+        "build"
+      ],
+      "knowledge": "Trust comes from specific, checkable facts. Invented proof is worse than none: it is a lie that a customer can catch.\n\nReal proof to look for in the brief:\n- Years in business, licenses and certifications (with numbers a customer can check).\n- Guarantees and policies (\"Flat fixed while you wait, or it's free\").\n- The owner's name and a real photo.\n- Real reviews quoted with permission, linked to where they live.\n- Process promises: what happens, when, and what it costs.\n- Real photos of real work and the real place.\n\nDo:\n- Put a short factual proof strip right under the hero.\n- Keep quotes to about three lines, with a real name and role.\n\nNever:\n- Invented testimonials, ratings, review counts, stats, awards or client logos.\n- \"Trusted by\" walls of companies that are not clients.\n- Fake people in pictures (see imagery_sourcing).\n- Testimonials for therapists and clinicians (see regulated_clients).\n\nAvoid:\n- \"Why choose us\" cards with promises any competitor could make (\"Quality\", \"Service\", \"Value\").\n\nCheck: every proof item on the page has a source in brief.md.\n\nSources: business graph proof, promise_integrity and regulated_clients; taste-skill fake-precision and quotes rules (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "type_pairing",
+      "type": "craft",
+      "label": "Type pairing - fonts that fit the business",
+      "aliases": [
+        "font pairing",
+        "fonts",
+        "typeface",
+        "which font",
+        "google fonts",
+        "heading font",
+        "body font",
+        "typography choice"
+      ],
+      "stages": [
+        "direction",
+        "sample"
+      ],
+      "knowledge": "The display face carries the page's personality; choose it from the business's world. One family is valid; two is a ceiling, not a score. If the client has brand fonts, use them first.\n\nStarting pairings (all on Google Fonts under open licenses; check each font's license file before shipping):\n- Barlow Condensed + Barlow: sturdy, mechanical. Trades, repair, gyms.\n- Archivo Black + Work Sans: bold, workmanlike. Local services.\n- Bebas Neue + Source Sans 3: loud, short headlines only (capitals). Events, fitness.\n- Space Grotesk + DM Sans: modern, technical. Tech repair, small software.\n- Outfit + Work Sans: geometric, friendly. General local business.\n- Figtree + Noto Sans: clean, calm, readable. Clinics.\n- Atkinson Hyperlegible (one family): built for legibility. Accessibility-first, therapy.\n- EB Garamond + Lato: traditional, trustworthy. Law, accounting with heritage.\n- IBM Plex Sans (one family): precise, steady. Finance, insurance.\n- Playfair Display SC + Karla: elegant, menu-like. Restaurants.\n- Rubik + Nunito Sans: rounded, approachable. Retail.\n- Syne + Manrope: avant-garde. Creative studios.\n- Bodoni Moda + Jost: high-end minimal. Boutiques.\n\nDo:\n- Pick for the business, then test with the real headline at real size.\n- Use weight and size for emphasis inside the same family.\n\nAvoid:\n- The system font as the display voice of a client site.\n- Inter as the first reach when nothing in the brief asks for neutral (it is fine for accessibility-first or public-sector briefs).\n- A serif just because \"premium\". Choose serif when the world is editorial, heritage or culinary.\n- Mixing a random second face into one headline word.\n\nCheck: the faces appear in the direction board with a reason, and the screenshot shows them loaded (not the fallback).\n\nSources: UI UX Pro Max typography data (github.com/nextlevelbuilder/ui-ux-pro-max-skill, MIT); gogh font-ban conflict resolution (Apache-2.0); taste-skill typography (MIT); Google Fonts FAQ (developers.google.com/fonts/faq). Checked 2026-10-10."
+    },
+    {
+      "id": "type_scale_hierarchy",
+      "type": "craft",
+      "label": "Type scale and hierarchy",
+      "aliases": [
+        "font size",
+        "headline size",
+        "type scale",
+        "hierarchy",
+        "heading sizes",
+        "line length",
+        "line height",
+        "h1 too small",
+        "h1 too big"
+      ],
+      "stages": [
+        "sample",
+        "build",
+        "review"
+      ],
+      "knowledge": "Hierarchy means a visitor sees the order of importance before reading a word. Make the steps obvious: headline, subhead, body, small print.\n\nDo:\n- Body text 16-18 px, line height about 1.5-1.65, lines of 45-75 characters.\n- A fluid hero headline with clamp(), sized for the face and the words: roughly clamp(2.25rem, 6vw, 4.5rem) for 4-8 words, larger only for 2-4 words. Keep it to 2-3 lines on desktop.\n- Display line height about 1.0-1.15. With italics, leave room for descenders (y, g, j, p).\n- Tight tracking only at large sizes, and not below about -0.04em.\n- More space above a heading than below it, so it belongs to what follows.\n- text-wrap: balance on headings to avoid one-word last lines.\n- Clear weight steps (for example 400 body, 600 subheads, 800 display), not five weights that look alike.\n\nAvoid:\n- A universal headline size. A 3-word headline and a 9-word headline need different sizes.\n- Headlines over about 6rem on desktop; they turn into wallpaper.\n- All-caps paragraphs and grey body text below contrast.\n\nCheck: on the desktop screenshot the H1 takes 2-3 lines and is clearly the largest text; on the phone it is still the largest and does not break mid-word.\n\nSources: impeccable craft floor and typeset (Apache-2.0); taste-skill hero font-scale discipline (MIT); Anthropic frontend-design line length (Apache-2.0); WCAG 2.2 (w3.org/TR/WCAG22). Checked 2026-10-10."
+    },
+    {
+      "id": "anti_slop",
+      "type": "check",
+      "label": "AI-made tells to avoid",
+      "aliases": [
+        "ai slop",
+        "looks ai generated",
+        "generic ai design",
+        "ai tells",
+        "template look",
+        "purple gradient",
+        "cookie cutter"
+      ],
+      "stages": [
+        "direction",
+        "sample",
+        "review"
+      ],
+      "knowledge": "AI-built pages cluster around the same defaults. A visitor who has seen a hundred of them recognizes them at once. Any of these is fine when the brief asks for it; reaching for one when the brief leaves the choice free means nothing was decided.\n\nThe common clusters:\n- Warm cream background, a high-contrast serif headline, a terracotta or clay accent.\n- Near-black background with one acid-green, neon or vermilion accent.\n- Purple or blue gradient hero with a glow.\n- The card kit: everything in identical rounded cards, same soft shadow, three equal feature cards with icons.\n- Template chrome: a small ALL-CAPS label above every heading, numbered markers (01 / 02 / 03) on things that are not a sequence, \"A · B · C\" meta strings, an arrow on every button, emoji as icons.\n- One accented word in the headline (italic or a different color).\n- Fade-and-slide-up on every section; hover lift on every card.\n- Fake precision: invented stats, \"98% satisfaction\", fake logos, \"Jane Doe\" testimonials.\n- Div-drawn fake screenshots and random blobs.\n\nDo:\n- Run this list against the direction board and against the screenshots.\n- Replace a tell with a choice that comes from the business (art_direction).\n\nAvoid:\n- Swapping one cluster for another (cream-serif to neon-dark is still a default).\n\nCheck: count the tells on the page. More than one that the brief did not ask for is a failed review.\n\nSources: Anthropic frontend-design calibration list (Apache-2.0); taste-skill AI tells (MIT); impeccable refuse list (Apache-2.0). Checked 2026-10-10."
+    },
+    {
+      "id": "contrast_checks",
+      "type": "check",
+      "label": "Contrast checks",
+      "aliases": [
+        "contrast",
+        "contrast ratio",
+        "readable text",
+        "text over image",
+        "wcag contrast",
+        "low contrast",
+        "button contrast"
+      ],
+      "stages": [
+        "direction",
+        "build",
+        "review"
+      ],
+      "knowledge": "Low contrast fails people and reads as cheap. Measure; do not eyeball.\n\nThe numbers (WCAG 2.2, level AA):\n- Normal text: at least 4.5 to 1 against its background.\n- Large text (24 px and up, or about 18.7 px bold and up): at least 3 to 1.\n- Buttons, form borders, focus rings and icons that carry meaning: at least 3 to 1 against what is next to them.\n- Placeholder and helper text is text: 4.5 to 1.\n\nDo:\n- Write the ratio next to each text pair on the direction board.\n- Text over photos: put it on a calm area, a scrim (a dark gradient over the lower part) or a solid band. Check the worst spot, not the average.\n- Make hover, focus and active states stronger than the resting state, never weaker.\n- Pair color with a word or icon for status (do not rely on color alone).\n- Check button text against the button, both states (a white button with white text is a real, common bug).\n\nAvoid:\n- Grey body text on a tinted background \"for elegance\".\n- Thin weights at small sizes on dark backgrounds.\n\nCheck: run the accessibility scan; for text over images, inspect the screenshot and mark it for manual review when the tool cannot measure it.\n\nSources: WCAG 2.2 understanding docs for contrast minimum (w3.org/WAI/WCAG22/Understanding/contrast-minimum) and non-text contrast; taste-skill button and form contrast checks (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "looks_cheap_fixes",
+      "type": "check",
+      "label": "Looks cheap - each failure and its fix",
+      "aliases": [
+        "looks cheap",
+        "looks bad",
+        "bland",
+        "boring",
+        "flat",
+        "amateur",
+        "not premium",
+        "shitty website",
+        "make it better",
+        "ugly",
+        "look better",
+        "improve the design",
+        "does not look good"
+      ],
+      "stages": [
+        "sample",
+        "review"
+      ],
+      "knowledge": "Name the failure, then apply its fix. Fix the cause, not the symptom.\n\n- Text-only hero with a button: the hero lacks a visual idea. Fix: a real photo or object (hero_compositions), or a deliberately composed type hero chosen on the direction board.\n- System font as the headline: no voice. Fix: a self-hosted display face that fits the world (type_pairing).\n- Small, timid headline: hierarchy is flat. Fix: a real size jump from headline to body, chosen per font (type_scale_hierarchy).\n- 4-line headline on desktop: container too narrow or font too big. Fix: widen the container or lower the size; keep it to 2-3 lines.\n- Everything centered: no tension. Fix: left-aligned text with an offset visual, unless centered was a chosen move.\n- Every section the same layout: no rhythm. Fix: vary layout families; max two image-text splits in a row.\n- Walls of equal cards: no hierarchy. Fix: one featured item large, the rest smaller, or a list without boxes.\n- Generic headline (\"Quality service you can trust\"): swap in a competitor's name; if it still works, rewrite it with the business's specifics.\n- Irrelevant stock picture: worse than none. Fix: the business's own subject, or a generated object or scene with no people.\n- Gray text on gray, thin weights: low contrast. Fix: check ratios (contrast_checks).\n- Default browser details (blue focus outline, gray scrollbar, raw form inputs): unfinished. Fix: browser_surfaces_polish.\n\nCheck: after fixing, re-shoot and confirm the failure is gone on phone and desktop.\n\nSources: impeccable bolder and craft floor (Apache-2.0); taste-skill layout discipline (MIT); Anthropic frontend-design (Apache-2.0). Checked 2026-10-10."
+    },
+    {
+      "id": "visual_review_rubric",
+      "type": "check",
+      "label": "Visual review rubric",
+      "aliases": [
+        "rubric",
+        "score the design",
+        "grade the site",
+        "review score",
+        "design score",
+        "quality bar",
+        "is it good enough"
+      ],
+      "stages": [
+        "sample",
+        "review"
+      ],
+      "knowledge": "Score each criterion 0-3 from the screenshots, citing what you see. 0 = broken or missing, 1 = generic or weak, 2 = intentional and solid, 3 = exceptional for this brief.\n\n1. Business fit: it could only be this business. (3 = the world of the business is visible; 1 = any competitor could use it.)\n2. Direction: distinctive and consistent. (3 = one clear idea, held everywhere; 1 = a template look.)\n3. Hero and first screen: who, what, action, real visual on the phone. (3 = all four, striking; 1 = text and a button.)\n4. Type and hierarchy: obvious order, characterful faces. (1 = system font, flat sizes.)\n5. Imagery: relevant, one visual language, well cropped. (1 = generic stock or none.)\n6. Section rhythm: varied families and pace. (1 = the same layout repeated.)\n7. Color: one system, one accent, used consistently. (1 = random or default palette.)\n8. Phone composition: designed for 390 px, thumb-friendly. (1 = a squeezed desktop.)\n9. Copy and action: specific words, one clear action. (1 = filler and \"Learn more\".)\n10. Finish: states, focus, browser details, no broken bits. (1 = defaults everywhere.)\n\nPass: 26 or more out of 30, nothing below 2, and 3 on Direction and Hero.\n\nRules:\n- A good score never waives a factual, accessibility or function failure.\n- Score only what you can see. If you cannot see the screenshot, write \"visual review pending\" and stop.\n- Matthew's approval is still required; a self-score is not proof.\n\nSources: Codex review rubric (10 criteria); impeccable critique heuristic scoring (Apache-2.0); frontend-design-skill-benchmark method (reference only). Checked 2026-10-10."
+    },
+    {
+      "id": "pattern_clinical_practice",
+      "type": "pattern",
+      "label": "Pattern - therapists and clinical practices",
+      "aliases": [
+        "therapist website",
+        "therapy practice website",
+        "counselor website",
+        "clinic website",
+        "medical practice website",
+        "social worker website",
+        "psychologist website",
+        "wellness practice"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "copy"
+      ],
+      "knowledge": "The visitor is often anxious and comparing quietly. They ask: will this person understand me, are they qualified, do they take my insurance, and how do I start without pressure.\n\nFirst three sections, in order:\n1. Hero: who the practice helps, in plain and warm words, and a low-pressure action (\"Book a free 15-minute call\"), with a calm real photo of the space or a quiet, non-human image.\n2. Who it is for and what to expect: approaches in plain language, what the first session is like.\n3. The clinician: name, license type and number, photo, a short human bio.\nThen: fees and insurance, location or telehealth, FAQ, final action, the crisis notice.\n\nDirection hints:\n- Dials around variance 3, motion 2, density 4.\n- Worlds: daylight, quiet rooms, natural materials, plain speech. Calm, not clinical-cold and not spa-cliche.\n- Type: highly legible (Atkinson Hyperlegible, Figtree), generous size and spacing.\n\nMust have:\n- The 988 and 911 crisis notice.\n- License details a visitor can verify.\n- Fees or insurance stated plainly.\n\nNever:\n- Testimonials (professional codes discourage them), promised outcomes, before-and-after, or fields asking for symptoms or diagnoses.\n- Generated pictures of people, sessions or the office.\n\nSources: business graph regulated_clients (NASW 4.07(b), HIPAA-minded intake); taste-skill trust-first dials (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "pattern_creative_studio",
+      "type": "pattern",
+      "label": "Pattern - creative studios",
+      "aliases": [
+        "studio website",
+        "photographer website",
+        "designer website",
+        "portfolio website",
+        "architect website",
+        "salon website",
+        "tattoo studio",
+        "creative agency"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "copy"
+      ],
+      "knowledge": "The buyer judges the work first and the words second. They ask: is their style right for me, what have they made, and how do I start.\n\nFirst three sections, in order:\n1. Hero: the work itself, large, with one line of who the studio is for and how to start.\n2. Selected work: a few strong projects, each with a short line of context, not everything.\n3. How to work together: services, process and starting price or \"from\" price where confirmed.\nThen: about, more work, contact.\n\nDirection hints:\n- Dials around variance 8, motion 6, density 3.\n- Let the work lead: the interface recedes.\n- One memorable interaction or layout move is welcome (a horizontal work strip, an unusual grid); keep it fast and accessible.\n- Type: expressive display faces are allowed (Syne, a wide grotesk) when they match the studio's style.\n\nMust have:\n- Real work with credits and permission.\n- Fast-loading galleries (image_delivery).\n\nAvoid:\n- Hiding the work behind long intro text.\n- Showing everything; curate.\n\nSources: impeccable experience mode (Apache-2.0); taste-skill portfolio presets (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "pattern_professional_services",
+      "type": "pattern",
+      "label": "Pattern - professional services",
+      "aliases": [
+        "law firm website",
+        "accountant website",
+        "lawyer website",
+        "consultant website",
+        "insurance agent website",
+        "financial advisor website",
+        "bookkeeper website",
+        "agency website"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "copy"
+      ],
+      "knowledge": "The buyer is weighing risk: are you competent, will you understand my situation, what will it cost, and what happens first.\n\nFirst three sections, in order:\n1. Hero: the problem solved for whom, in plain words, and a clear first step (book a consultation, request a quote).\n2. What you handle: practice areas or services, specific, with who each is for.\n3. How it works and what it costs: the process in steps and how fees work.\nThen: the people (real names, credentials, photos), proof (verifiable facts, published work), FAQ, final action.\n\nDirection hints:\n- Dials around variance 4, motion 2, density 5.\n- Worlds: the desk, the document, the city, the ledger. Precise and steady, not stock-handshake.\n- Type: an editorial or heritage serif can be right here (EB Garamond) when the firm's world is traditional; a precise sans (IBM Plex Sans) when it is modern.\n- Hero: editorial type, chosen deliberately, or a split with a real portrait or the real office.\n\nMust have:\n- Real credentials and bar or license numbers where relevant.\n- Required disclaimers (attorney advertising, financial disclosures) where they apply.\n\nAvoid:\n- Handshake and gavel stock photos.\n- Vague promises (\"results-driven\", \"client-focused\").\n\nSources: business graph website, proof and promise_integrity. Checked 2026-10-10."
+    },
+    {
+      "id": "pattern_restaurant_cafe",
+      "type": "pattern",
+      "label": "Pattern - restaurants and cafes",
+      "aliases": [
+        "restaurant website",
+        "cafe website",
+        "coffee shop website",
+        "bakery website",
+        "bar website",
+        "menu website",
+        "food website"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "copy"
+      ],
+      "knowledge": "The diner asks: what is it like, what can I eat, is it open now, and where is it. Atmosphere sells; hours and the menu close the deal.\n\nFirst three sections, in order:\n1. Hero: the feeling of the place and the action (reserve, order pickup, or get directions), with a real photo of the room or the food.\n2. Hours and location, up high: open now or not, address, map link, phone.\n3. The menu: real dishes and prices as text, never only a PDF or a photo of a menu.\nThen: the story or the chef, gallery of the room and dishes, private events, final action.\n\nDirection hints:\n- Dials around variance 7, motion 4, density 4.\n- Worlds come from the cuisine and the room: chalkboard, tile, linen, neon, wood, a street corner.\n- Type with appetite: a characterful display face (menu-like or hand-lettered feel) with a clean body face.\n- Hero: place-led or object focus with a real dish.\n\nMust have:\n- Menu as real text (readable, searchable, accessible).\n- Hours that match the Google profile, including holidays.\n- Reservation or ordering in its working form.\n\nAvoid:\n- Generated pictures of dishes or the room posing as theirs.\n- Autoplay music.\n- A PDF-only menu.\n\nSources: business graph local_visibility and website; impeccable persuade mode, the action in its working form (Apache-2.0). Checked 2026-10-10."
+    },
+    {
+      "id": "pattern_retail_shop",
+      "type": "pattern",
+      "label": "Pattern - retail shops",
+      "aliases": [
+        "shop website",
+        "store website",
+        "boutique website",
+        "retail website",
+        "gift shop",
+        "local store",
+        "used goods",
+        "products page"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "copy"
+      ],
+      "knowledge": "The shopper asks: what do you sell, is it my style, can I buy it online or should I visit, and when are you open.\n\nFirst three sections, in order:\n1. Hero: the shop's point of view and the main way to buy (visit, order, call), with a real product or the real shop.\n2. What they sell: a few featured categories or items with real photos and prices where confirmed.\n3. Visit or buy: address, hours, parking or transit, pickup and delivery options.\nThen: the story, new arrivals, events, FAQ, final action.\n\nDirection hints:\n- Dials around variance 7, motion 4, density 5.\n- Worlds come from the goods: their materials, colors and the shop floor.\n- Type: matches the goods (refined for boutiques, playful for gifts).\n- Hero: object focus with one hero product, or place-led with the storefront.\n\nMust have:\n- Real product photos with consistent light and background.\n- Clear \"how to buy\" (in store, pickup, shipping).\n\nAvoid:\n- Generated product pictures posing as stock the shop really has.\n- A wall of identical product cards on the home page; feature a few.\n\nSources: business graph website; taste-skill content density (MIT). Checked 2026-10-10."
+    },
+    {
+      "id": "pattern_trades_repair",
+      "type": "pattern",
+      "label": "Pattern - trades and repair shops",
+      "aliases": [
+        "bike shop website",
+        "repair shop website",
+        "plumber website",
+        "electrician website",
+        "contractor website",
+        "mechanic website",
+        "trades website",
+        "handyman",
+        "auto repair"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "copy"
+      ],
+      "knowledge": "The buyer has a broken thing and a question: can you fix it, how much, how fast, and where. They are often on a phone, sometimes standing next to the problem.\n\nFirst three sections, in order:\n1. Hero: what you fix, for whom, and the action (call or book), with a real picture of the work, the tools or the shop.\n2. Prices and turnaround: a clear list (\"Basic tune-up $65, 2 days\"). Prices and speed are the strongest proof a trade has.\n3. Proof strip: years, licenses, guarantees, the owner's name.\nThen: services in depth, real work gallery, location and hours, FAQ, final action.\n\nDirection hints:\n- Dials around variance 6, motion 3, density 5.\n- Worlds: the workbench, the toolbox, the job ticket, the van. Honest materials (steel, grease-dark, kraft paper, safety colors) used with restraint.\n- Type: sturdy or condensed faces (Barlow Condensed, Archivo Black) with a plain body face.\n- Hero: object focus (one tool or part, big), work-led, or a full-bleed photo of real work.\n\nMust have:\n- Tap-to-call in the hero and a sticky call or book bar on phones.\n- Service area named.\n- Emergency or same-day info if it exists.\n\nAvoid:\n- Generic \"quality craftsmanship\" lines; say what you fix and how fast.\n- Stock photos of smiling workers.\n\nSources: business graph website and local_visibility; MWS practice brief (Ridgewood Bike Works, 2026-10-09). Checked 2026-10-10."
+    },
+    {
+      "id": "gold_standard_mws",
+      "type": "reference",
+      "label": "Gold standard - what the MWS Consulting site does well",
+      "aliases": [
+        "gold standard",
+        "mws site",
+        "matthew's site",
+        "mwsconsulting.studio",
+        "example of a good site",
+        "studio site"
+      ],
+      "stages": [
+        "direction",
+        "review"
+      ],
+      "knowledge": "Matthew's own site (mwsconsulting.studio) shows principles to transfer. Its look is the studio's brand; never clone its dark palette or neon onto a client.\n\nWhat it does well:\n- One signature idea tied to the story: a claymation film of owners going from tech overload to calm, behind a headline styled as glass neon tubes. The idea IS the offer.\n- The hero picture loads first (a poster image with high fetch priority); the film loads after, muted, looping, with a pause button; a scrim keeps the text readable.\n- A two-line, plain headline in the customer's words (\"Less tech stress. More real work.\") and one concrete sentence of what they do.\n- Two actions: the main one, plus a free, low-risk first step.\n- Right under the hero, a strip of factual commitments (owned work, a free first look, scope in writing, client-owned accounts) instead of testimonials it does not have.\n- Local specificity: it names the towns it serves.\n- Self-hosted display and body faces (Archivo Black and Inter), only the weights used, preloaded.\n- A tight token set: three surface levels, one electric accent with a soft tint, one corner radius.\n\nTransfer:\n- Find the client's own story and make one visual idea of it.\n- Load the hero picture first; anything heavy comes after.\n- Replace missing testimonials with true commitments.\n\nCheck: when you cite this site, name the principle, not the colors.\n\nSource: the MWS Consulting site, reviewed 2026-10-10."
+    },
+    {
+      "id": "taste_references",
+      "type": "reference",
+      "label": "Matthew's taste references",
+      "aliases": [
+        "matthew's taste",
+        "what matthew likes",
+        "favorite sites",
+        "taste",
+        "studio style",
+        "house style"
+      ],
+      "stages": [
+        "brief",
+        "direction",
+        "review"
+      ],
+      "knowledge": "This topic holds the sites Matthew likes and what he likes about each. It is his taste, recorded in his words. Never invent entries.\n\nSeeded reference:\n- Matthew's own site, MWS Consulting (see gold_standard_mws): a full-bleed film hero, a short two-line headline, a free first offer beside the main action, and a strip of factual commitments instead of testimonials.\n\nMatthew's favorites (empty until he names them):\n1. [site] - what he likes:\n2. [site] - what he likes:\n3. [site] - what he likes:\n4. [site] - what he likes:\n5. [site] - what he likes:\n\nDo:\n- Ask Matthew for 3-5 favorites at the first brief if this list is still empty, and record his exact words.\n- Use his favorites as principles across clients, never as a theme to clone onto every site.\n- When a client's brief conflicts with Matthew's taste, the client's brief wins for that client.\n\nAvoid:\n- Guessing his preferences from one comment.\n- Turning his own brand (dark, electric cyan) into every client's palette.\n\nCheck: every entry has a source line (when and where Matthew said it)."
+    }
+  ],
+  "edges": [
+    {
+      "source": "anti_slop",
+      "target": "art_direction",
+      "relation": "fixes",
+      "context": "A real direction replaces the defaults."
+    },
+    {
+      "source": "anti_slop",
+      "target": "looks_cheap_fixes",
+      "relation": "relates",
+      "context": "Slop tells are one kind of cheap look."
+    },
+    {
+      "source": "anti_slop",
+      "target": "type_pairing",
+      "relation": "fixes",
+      "context": "Deliberate faces replace default ones."
+    },
+    {
+      "source": "art_direction",
+      "target": "anti_slop",
+      "relation": "checks",
+      "context": "A route that matches an AI default is not a direction."
+    },
+    {
+      "source": "art_direction",
+      "target": "design_fundamentals",
+      "relation": "refines",
+      "context": "Fundamentals keep the world readable and consistent."
+    },
+    {
+      "source": "art_direction",
+      "target": "hero_compositions",
+      "relation": "uses",
+      "context": "The world decides the hero."
+    },
+    {
+      "source": "art_direction",
+      "target": "reference_analysis",
+      "relation": "uses",
+      "context": "Borrow principles from real references."
+    },
+    {
+      "source": "art_direction",
+      "target": "site_stage_direction",
+      "relation": "serves",
+      "context": "Each route on the board is an art direction."
+    },
+    {
+      "source": "browser_surfaces_polish",
+      "target": "interaction_states",
+      "relation": "relates",
+      "context": "Focus rings are part of the finish."
+    },
+    {
+      "source": "browser_surfaces_polish",
+      "target": "site_stage_review",
+      "relation": "serves",
+      "context": "The review checks these."
+    },
+    {
+      "source": "color_system",
+      "target": "anti_slop",
+      "relation": "checks",
+      "context": "Default palettes are a tell."
+    },
+    {
+      "source": "color_system",
+      "target": "contrast_checks",
+      "relation": "needs",
+      "context": "Every text pair is measured."
+    },
+    {
+      "source": "color_system",
+      "target": "design_fundamentals",
+      "relation": "refines",
+      "context": "Neutrals, one accent, semantic colors."
+    },
+    {
+      "source": "contrast_checks",
+      "target": "accessibility",
+      "relation": "refines",
+      "context": "The business graph's accessibility rules apply."
+    },
+    {
+      "source": "contrast_checks",
+      "target": "color_system",
+      "relation": "serves",
+      "context": "Contrast is checked for every token pair."
+    },
+    {
+      "source": "design_read",
+      "target": "art_direction",
+      "relation": "informs",
+      "context": "The read and the dials frame the routes."
+    },
+    {
+      "source": "design_read",
+      "target": "layout_grid_rhythm",
+      "relation": "informs",
+      "context": "The variance and density dials set the layout."
+    },
+    {
+      "source": "design_read",
+      "target": "motion_principles",
+      "relation": "informs",
+      "context": "The motion dial sets how much moves."
+    },
+    {
+      "source": "design_read",
+      "target": "regulated_clients",
+      "relation": "constrains",
+      "context": "Regulated and trust-first clients take low dials."
+    },
+    {
+      "source": "font_loading",
+      "target": "performance_budget",
+      "relation": "serves",
+      "context": "Fonts count against the speed budget."
+    },
+    {
+      "source": "font_loading",
+      "target": "type_pairing",
+      "relation": "serves",
+      "context": "The chosen faces must arrive fast and right."
+    },
+    {
+      "source": "forms_that_convert",
+      "target": "cro",
+      "relation": "refines",
+      "context": "Ask only what the next step needs."
+    },
+    {
+      "source": "forms_that_convert",
+      "target": "interaction_states",
+      "relation": "uses",
+      "context": "Forms need every state."
+    },
+    {
+      "source": "forms_that_convert",
+      "target": "regulated_clients",
+      "relation": "constrains",
+      "context": "Clinical forms never ask for health details."
+    },
+    {
+      "source": "gold_standard_mws",
+      "target": "art_direction",
+      "relation": "example_of",
+      "context": "A world built from the business's own story."
+    },
+    {
+      "source": "gold_standard_mws",
+      "target": "studio_profile",
+      "relation": "relates",
+      "context": "The studio whose site this is."
+    },
+    {
+      "source": "gold_standard_mws",
+      "target": "taste_references",
+      "relation": "serves",
+      "context": "The first entry in Matthew's taste references."
+    },
+    {
+      "source": "hero_compositions",
+      "target": "hero_first_screen",
+      "relation": "serves",
+      "context": "Every composition must still pass the first-screen rules."
+    },
+    {
+      "source": "hero_compositions",
+      "target": "image_art_direction",
+      "relation": "needs",
+      "context": "Most compositions live or die by the picture."
+    },
+    {
+      "source": "hero_compositions",
+      "target": "image_delivery",
+      "relation": "needs",
+      "context": "The hero picture is usually the page's largest paint."
+    },
+    {
+      "source": "hero_compositions",
+      "target": "mobile_composition",
+      "relation": "checks",
+      "context": "Each composition says how it recomposes on a phone."
+    },
+    {
+      "source": "hero_first_screen",
+      "target": "hero_compositions",
+      "relation": "uses",
+      "context": "Pick the composition that carries the first screen."
+    },
+    {
+      "source": "hero_first_screen",
+      "target": "mobile_composition",
+      "relation": "checks",
+      "context": "The phone first screen is the one that matters most."
+    },
+    {
+      "source": "hero_first_screen",
+      "target": "primary_action_design",
+      "relation": "uses",
+      "context": "The action is visible without scrolling."
+    },
+    {
+      "source": "hero_first_screen",
+      "target": "website",
+      "relation": "refines",
+      "context": "The business graph's first-screen order still applies."
+    },
+    {
+      "source": "image_art_direction",
+      "target": "color_system",
+      "relation": "uses",
+      "context": "Pictures match the palette."
+    },
+    {
+      "source": "image_art_direction",
+      "target": "image_delivery",
+      "relation": "next",
+      "context": "Then size and deliver it."
+    },
+    {
+      "source": "image_art_direction",
+      "target": "imagery_sourcing",
+      "relation": "uses",
+      "context": "Only generate what the sourcing rules allow."
+    },
+    {
+      "source": "image_delivery",
+      "target": "browser_surfaces_polish",
+      "relation": "relates",
+      "context": "Both are details that separate built from assembled."
+    },
+    {
+      "source": "image_delivery",
+      "target": "hero_compositions",
+      "relation": "serves",
+      "context": "The hero picture is usually the largest paint."
+    },
+    {
+      "source": "image_delivery",
+      "target": "performance_budget",
+      "relation": "serves",
+      "context": "Pictures are most of the page's weight."
+    },
+    {
+      "source": "imagery_sourcing",
+      "target": "design_fundamentals",
+      "relation": "refines",
+      "context": "Real photos beat stock; never fake staff or customers."
+    },
+    {
+      "source": "imagery_sourcing",
+      "target": "image_art_direction",
+      "relation": "next",
+      "context": "After the source is settled, direct the picture."
+    },
+    {
+      "source": "imagery_sourcing",
+      "target": "regulated_clients",
+      "relation": "constrains",
+      "context": "Clinical clients have stricter picture rules."
+    },
+    {
+      "source": "imagery_sourcing",
+      "target": "truthful_trust",
+      "relation": "constrains",
+      "context": "A picture is a claim; it must be true."
+    },
+    {
+      "source": "interaction_states",
+      "target": "accessibility",
+      "relation": "refines",
+      "context": "Keyboard and focus rules live there too."
+    },
+    {
+      "source": "interaction_states",
+      "target": "forms_that_convert",
+      "relation": "serves",
+      "context": "Forms need the full set of states."
+    },
+    {
+      "source": "interaction_states",
+      "target": "motion_principles",
+      "relation": "uses",
+      "context": "State changes may animate briefly."
+    },
+    {
+      "source": "layout_grid_rhythm",
+      "target": "looks_cheap_fixes",
+      "relation": "fixes",
+      "context": "Monotony and equal cards are fixed here."
+    },
+    {
+      "source": "layout_grid_rhythm",
+      "target": "mobile_composition",
+      "relation": "serves",
+      "context": "Every layout declares its phone version."
+    },
+    {
+      "source": "layout_grid_rhythm",
+      "target": "section_patterns",
+      "relation": "uses",
+      "context": "Rhythm comes from choosing different section families."
+    },
+    {
+      "source": "looks_cheap_fixes",
+      "target": "contrast_checks",
+      "relation": "fixes",
+      "context": "Low contrast reads as cheap and fails people."
+    },
+    {
+      "source": "looks_cheap_fixes",
+      "target": "hero_first_screen",
+      "relation": "fixes",
+      "context": "Many failures start in the hero."
+    },
+    {
+      "source": "looks_cheap_fixes",
+      "target": "layout_grid_rhythm",
+      "relation": "fixes",
+      "context": "Monotony is a rhythm problem."
+    },
+    {
+      "source": "looks_cheap_fixes",
+      "target": "site_stage_review",
+      "relation": "serves",
+      "context": "The review names failures from this list."
+    },
+    {
+      "source": "looks_cheap_fixes",
+      "target": "type_scale_hierarchy",
+      "relation": "fixes",
+      "context": "Weak hierarchy is a type problem."
+    },
+    {
+      "source": "mobile_composition",
+      "target": "hero_first_screen",
+      "relation": "checks",
+      "context": "The phone first screen comes first."
+    },
+    {
+      "source": "mobile_composition",
+      "target": "interaction_states",
+      "relation": "uses",
+      "context": "Touch states and targets."
+    },
+    {
+      "source": "mobile_composition",
+      "target": "site_qa_launch",
+      "relation": "refines",
+      "context": "QA checks phone, tablet and desktop widths."
+    },
+    {
+      "source": "motion_principles",
+      "target": "accessibility",
+      "relation": "constrains",
+      "context": "Reduced motion is respected."
+    },
+    {
+      "source": "motion_principles",
+      "target": "design_read",
+      "relation": "uses",
+      "context": "The motion dial sets how much moves."
+    },
+    {
+      "source": "motion_principles",
+      "target": "interaction_states",
+      "relation": "relates",
+      "context": "Motion that answers a person's action is welcome."
+    },
+    {
+      "source": "pattern_clinical_practice",
+      "target": "design_read",
+      "relation": "uses",
+      "context": "Low dials: calm is the feature."
+    },
+    {
+      "source": "pattern_clinical_practice",
+      "target": "forms_that_convert",
+      "relation": "constrains",
+      "context": "No health details on any form."
+    },
+    {
+      "source": "pattern_clinical_practice",
+      "target": "regulated_clients",
+      "relation": "constrains",
+      "context": "Its rules override every design preference here."
+    },
+    {
+      "source": "pattern_clinical_practice",
+      "target": "truthful_trust",
+      "relation": "constrains",
+      "context": "No testimonials."
+    },
+    {
+      "source": "pattern_creative_studio",
+      "target": "art_direction",
+      "relation": "uses",
+      "context": "The studio's own work is the world."
+    },
+    {
+      "source": "pattern_creative_studio",
+      "target": "hero_compositions",
+      "relation": "uses",
+      "context": "Work-led or editorial type."
+    },
+    {
+      "source": "pattern_creative_studio",
+      "target": "motion_principles",
+      "relation": "relates",
+      "context": "Motion can be higher here, still purposeful."
+    },
+    {
+      "source": "pattern_professional_services",
+      "target": "hero_compositions",
+      "relation": "uses",
+      "context": "Editorial type or a calm split with a real portrait or place."
+    },
+    {
+      "source": "pattern_professional_services",
+      "target": "section_patterns",
+      "relation": "uses",
+      "context": "Process and fees build trust."
+    },
+    {
+      "source": "pattern_professional_services",
+      "target": "truthful_trust",
+      "relation": "uses",
+      "context": "Credentials and process are the proof."
+    },
+    {
+      "source": "pattern_restaurant_cafe",
+      "target": "hero_compositions",
+      "relation": "uses",
+      "context": "Place-led or object-focus (real food)."
+    },
+    {
+      "source": "pattern_restaurant_cafe",
+      "target": "imagery_sourcing",
+      "relation": "constrains",
+      "context": "Food pictures must be the real food."
+    },
+    {
+      "source": "pattern_restaurant_cafe",
+      "target": "section_patterns",
+      "relation": "uses",
+      "context": "Menu, hours and location come early."
+    },
+    {
+      "source": "pattern_retail_shop",
+      "target": "hero_compositions",
+      "relation": "uses",
+      "context": "Object focus or place-led."
+    },
+    {
+      "source": "pattern_retail_shop",
+      "target": "image_delivery",
+      "relation": "needs",
+      "context": "Product pictures carry the page and must load fast."
+    },
+    {
+      "source": "pattern_retail_shop",
+      "target": "section_patterns",
+      "relation": "uses",
+      "context": "What they sell and how to buy come early."
+    },
+    {
+      "source": "pattern_trades_repair",
+      "target": "hero_compositions",
+      "relation": "uses",
+      "context": "Object focus, work-led or full-bleed workshop."
+    },
+    {
+      "source": "pattern_trades_repair",
+      "target": "local_visibility",
+      "relation": "relates",
+      "context": "Name, address, phone and hours match the Google profile."
+    },
+    {
+      "source": "pattern_trades_repair",
+      "target": "section_patterns",
+      "relation": "uses",
+      "context": "Prices and turnaround come early."
+    },
+    {
+      "source": "primary_action_design",
+      "target": "cro",
+      "relation": "refines",
+      "context": "The business graph's conversion rules apply."
+    },
+    {
+      "source": "primary_action_design",
+      "target": "hero_first_screen",
+      "relation": "serves",
+      "context": "The action is part of the first screen."
+    },
+    {
+      "source": "primary_action_design",
+      "target": "site_copy_voice",
+      "relation": "uses",
+      "context": "The label says what happens."
+    },
+    {
+      "source": "reference_analysis",
+      "target": "art_direction",
+      "relation": "informs",
+      "context": "References supply principles for the routes."
+    },
+    {
+      "source": "reference_analysis",
+      "target": "local_visibility",
+      "relation": "informs",
+      "context": "Local competitors show what the area's buyers already see."
+    },
+    {
+      "source": "reference_analysis",
+      "target": "taste_references",
+      "relation": "uses",
+      "context": "Matthew's own favorites come first."
+    },
+    {
+      "source": "section_patterns",
+      "target": "layout_grid_rhythm",
+      "relation": "uses",
+      "context": "Each family appears once, in a varied order."
+    },
+    {
+      "source": "section_patterns",
+      "target": "site_stage_copy",
+      "relation": "serves",
+      "context": "Sections are chosen while writing copy."
+    },
+    {
+      "source": "section_patterns",
+      "target": "truthful_trust",
+      "relation": "uses",
+      "context": "Proof sections hold only real proof."
+    },
+    {
+      "source": "section_patterns",
+      "target": "website_ia",
+      "relation": "refines",
+      "context": "One intent per page."
+    },
+    {
+      "source": "site_copy_voice",
+      "target": "anti_slop",
+      "relation": "checks",
+      "context": "Cute AI phrasing is a tell."
+    },
+    {
+      "source": "site_copy_voice",
+      "target": "copywriting",
+      "relation": "refines",
+      "context": "The business graph's copy rules apply."
+    },
+    {
+      "source": "site_copy_voice",
+      "target": "primary_action_design",
+      "relation": "serves",
+      "context": "Action labels follow the same voice."
+    },
+    {
+      "source": "site_project_state",
+      "target": "decision_rights",
+      "relation": "uses",
+      "context": "Approvals belong to Matthew, as the business graph says."
+    },
+    {
+      "source": "site_project_state",
+      "target": "site_stage_brief",
+      "relation": "serves",
+      "context": "Every stage reads and updates the state."
+    },
+    {
+      "source": "site_stage_brief",
+      "target": "imagery_sourcing",
+      "relation": "uses",
+      "context": "The asset inventory decides where pictures will come from."
+    },
+    {
+      "source": "site_stage_brief",
+      "target": "site_project_state",
+      "relation": "uses",
+      "context": "Record the approval and the brief's path in the state file."
+    },
+    {
+      "source": "site_stage_brief",
+      "target": "site_stage_direction",
+      "relation": "next",
+      "context": "The approved brief is the input to the two directions."
+    },
+    {
+      "source": "site_stage_brief",
+      "target": "truthful_trust",
+      "relation": "uses",
+      "context": "List the real proof the business has before anyone writes a claim."
+    },
+    {
+      "source": "site_stage_brief",
+      "target": "website_build_process",
+      "relation": "refines",
+      "context": "This stage is step 1 of that process, with an asset inventory added."
+    },
+    {
+      "source": "site_stage_build",
+      "target": "font_loading",
+      "relation": "uses",
+      "context": "Fonts load fast and do not shift the page."
+    },
+    {
+      "source": "site_stage_build",
+      "target": "image_delivery",
+      "relation": "uses",
+      "context": "Every picture is sized and delivered right."
+    },
+    {
+      "source": "site_stage_build",
+      "target": "interaction_states",
+      "relation": "uses",
+      "context": "Every control gets every state."
+    },
+    {
+      "source": "site_stage_build",
+      "target": "layout_grid_rhythm",
+      "relation": "uses",
+      "context": "Section rhythm across whole pages."
+    },
+    {
+      "source": "site_stage_build",
+      "target": "section_patterns",
+      "relation": "uses",
+      "context": "Pick sections for their job, each layout family once."
+    },
+    {
+      "source": "site_stage_build",
+      "target": "site_stage_review",
+      "relation": "next",
+      "context": "Every build ends in the review loop."
+    },
+    {
+      "source": "site_stage_build",
+      "target": "web_stack",
+      "relation": "uses",
+      "context": "The business graph's stack rules apply (Astro, little JavaScript)."
+    },
+    {
+      "source": "site_stage_copy",
+      "target": "copywriting",
+      "relation": "uses",
+      "context": "The business graph's copy rules apply."
+    },
+    {
+      "source": "site_stage_copy",
+      "target": "section_patterns",
+      "relation": "uses",
+      "context": "Each section is chosen for the question it answers."
+    },
+    {
+      "source": "site_stage_copy",
+      "target": "site_copy_voice",
+      "relation": "uses",
+      "context": "How the words should sound and work."
+    },
+    {
+      "source": "site_stage_copy",
+      "target": "site_stage_sample",
+      "relation": "next",
+      "context": "The sample uses the approved copy, never placeholder text."
+    },
+    {
+      "source": "site_stage_copy",
+      "target": "website_ia",
+      "relation": "uses",
+      "context": "One intent and one primary action per page."
+    },
+    {
+      "source": "site_stage_direction",
+      "target": "anti_slop",
+      "relation": "checks",
+      "context": "Reject a route that matches an AI default."
+    },
+    {
+      "source": "site_stage_direction",
+      "target": "art_direction",
+      "relation": "uses",
+      "context": "Each route is an art direction, chosen for this business."
+    },
+    {
+      "source": "site_stage_direction",
+      "target": "color_system",
+      "relation": "uses",
+      "context": "Each route names its palette."
+    },
+    {
+      "source": "site_stage_direction",
+      "target": "hero_compositions",
+      "relation": "uses",
+      "context": "Each route names one hero composition."
+    },
+    {
+      "source": "site_stage_direction",
+      "target": "site_stage_copy",
+      "relation": "next",
+      "context": "Copy is written for the chosen direction."
+    },
+    {
+      "source": "site_stage_direction",
+      "target": "type_pairing",
+      "relation": "uses",
+      "context": "Each route names its type system."
+    },
+    {
+      "source": "site_stage_handoff",
+      "target": "imagery_sourcing",
+      "relation": "checks",
+      "context": "Every picture has a recorded source and license."
+    },
+    {
+      "source": "site_stage_handoff",
+      "target": "site_project_state",
+      "relation": "uses",
+      "context": "Close the project state with every approval recorded."
+    },
+    {
+      "source": "site_stage_handoff",
+      "target": "site_qa_launch",
+      "relation": "uses",
+      "context": "The launch record format lives there."
+    },
+    {
+      "source": "site_stage_review",
+      "target": "anti_slop",
+      "relation": "uses",
+      "context": "Check for AI tells."
+    },
+    {
+      "source": "site_stage_review",
+      "target": "browser_surfaces_polish",
+      "relation": "uses",
+      "context": "The cheap details that show craft."
+    },
+    {
+      "source": "site_stage_review",
+      "target": "looks_cheap_fixes",
+      "relation": "uses",
+      "context": "Name each weakness and its repair."
+    },
+    {
+      "source": "site_stage_review",
+      "target": "site_qa_launch",
+      "relation": "uses",
+      "context": "The business graph's QA checklist still applies."
+    },
+    {
+      "source": "site_stage_review",
+      "target": "site_stage_handoff",
+      "relation": "next",
+      "context": "Hand off only after the rubric passes and Matthew approves."
+    },
+    {
+      "source": "site_stage_review",
+      "target": "visual_review_rubric",
+      "relation": "uses",
+      "context": "Score from screenshots."
+    },
+    {
+      "source": "site_stage_sample",
+      "target": "hero_first_screen",
+      "relation": "uses",
+      "context": "The sample is judged on the first screen first."
+    },
+    {
+      "source": "site_stage_sample",
+      "target": "image_art_direction",
+      "relation": "needs",
+      "context": "The sample uses the real or generated hero picture, not a gray box."
+    },
+    {
+      "source": "site_stage_sample",
+      "target": "looks_cheap_fixes",
+      "relation": "checks",
+      "context": "Fix the obvious failures before Matthew sees it."
+    },
+    {
+      "source": "site_stage_sample",
+      "target": "site_stage_build",
+      "relation": "next",
+      "context": "The approved sample sets the tokens and patterns for the whole site."
+    },
+    {
+      "source": "site_stage_sample",
+      "target": "visual_review_rubric",
+      "relation": "checks",
+      "context": "Score the sample before showing it."
+    },
+    {
+      "source": "taste_references",
+      "target": "gold_standard_mws",
+      "relation": "uses",
+      "context": "Matthew's own site is the first reference."
+    },
+    {
+      "source": "taste_references",
+      "target": "reference_analysis",
+      "relation": "informs",
+      "context": "Study these the same way as any reference."
+    },
+    {
+      "source": "truthful_trust",
+      "target": "promise_integrity",
+      "relation": "constrains",
+      "context": "Never claim what is not true."
+    },
+    {
+      "source": "truthful_trust",
+      "target": "proof",
+      "relation": "refines",
+      "context": "The business graph's proof rules apply."
+    },
+    {
+      "source": "truthful_trust",
+      "target": "regulated_clients",
+      "relation": "constrains",
+      "context": "Clinical clients do not use testimonials."
+    },
+    {
+      "source": "truthful_trust",
+      "target": "reviews_reputation",
+      "relation": "relates",
+      "context": "Real reviews come from real customers, with permission."
+    },
+    {
+      "source": "type_pairing",
+      "target": "anti_slop",
+      "relation": "checks",
+      "context": "Default faces are a tell."
+    },
+    {
+      "source": "type_pairing",
+      "target": "design_fundamentals",
+      "relation": "refines",
+      "context": "At most one display face and one body face."
+    },
+    {
+      "source": "type_pairing",
+      "target": "font_loading",
+      "relation": "needs",
+      "context": "Chosen faces must load fast."
+    },
+    {
+      "source": "type_pairing",
+      "target": "type_scale_hierarchy",
+      "relation": "next",
+      "context": "After choosing faces, set the scale."
+    },
+    {
+      "source": "type_scale_hierarchy",
+      "target": "hero_first_screen",
+      "relation": "serves",
+      "context": "The hero headline is the biggest type decision."
+    },
+    {
+      "source": "type_scale_hierarchy",
+      "target": "looks_cheap_fixes",
+      "relation": "fixes",
+      "context": "Flat hierarchy is a top reason pages look cheap."
+    },
+    {
+      "source": "type_scale_hierarchy",
+      "target": "type_pairing",
+      "relation": "uses",
+      "context": "Sizes are chosen per face."
+    },
+    {
+      "source": "visual_review_rubric",
+      "target": "looks_cheap_fixes",
+      "relation": "uses",
+      "context": "Low scores point to named fixes."
+    },
+    {
+      "source": "visual_review_rubric",
+      "target": "site_stage_review",
+      "relation": "serves",
+      "context": "The review loop scores with this rubric."
+    },
+    {
+      "source": "visual_review_rubric",
+      "target": "site_stage_sample",
+      "relation": "serves",
+      "context": "The sample is scored before Matthew sees it."
+    }
+  ]
+}

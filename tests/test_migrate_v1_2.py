@@ -27,7 +27,7 @@ def test_v1_2_contents() -> None:
         assert node_id in ids
     relations = {(e["source"], e["target"]): e["relation"] for e in graph["edges"]}
     assert relations[("pricing", "positioning")] == "can_undermine"
-    assert graph["graph_meta"]["version"] == "1.2"
+    assert graph["graph_meta"]["version"] == "1.2.1"
     assert graph["graph_meta"]["profile_node"] == "studio_profile"
 
 
