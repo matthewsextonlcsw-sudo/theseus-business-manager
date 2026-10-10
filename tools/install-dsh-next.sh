@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Copy Theseus's skills and the current knowledge graph into a DSH NEXT home.
+# Copy Theseus's skills and the active knowledge graphs into a DSH NEXT home.
 # Usage: bash tools/install-dsh-next.sh            (installs into $DSH_HOME, default ~/.dsh-next)
 # Copies instead of symlinking, so the harness never needs access to this repo's folder.
 # Existing files are overwritten; nothing is deleted.
@@ -15,8 +15,17 @@ for skill in "$ROOT"/skills/*/; do
   mkdir -p "$DEST/$name"
   cp -R "$skill". "$DEST/$name/"
 done
+# Every active graph (business and website craft); archived versions (*.v1.*) stay in the repo.
 mkdir -p "$DEST/use-the-graph/references"
-cp "$ROOT/knowledge/business-operating.grag.json" "$DEST/use-the-graph/references/"
+for graph in "$ROOT"/knowledge/*.grag.json; do
+  case "$(basename "$graph")" in *.v1.*) continue ;; esac
+  cp "$graph" "$DEST/use-the-graph/references/"
+done
+# The website craft playbook travels with build-a-site, for reading in full.
+if [ -d "$DEST/build-a-site" ] && [ -f "$ROOT/knowledge/website-craft.md" ]; then
+  mkdir -p "$DEST/build-a-site/references"
+  cp "$ROOT/knowledge/website-craft.md" "$DEST/build-a-site/references/"
+fi
 
 # The Standard-tier starter travels with build-a-site (source only, no installed packages or builds).
 if [ -d "$ROOT/starter" ] && [ -d "$DEST/build-a-site" ]; then

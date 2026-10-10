@@ -308,19 +308,17 @@ NEW_NODES = [
         "label": "Website build process",
         "aliases": ["build a site", "new website", "standard site", "site build", "make a website"],
         "knowledge": (
-            "A standard site is built in a fixed order so it is right before it is pretty. Skip a step and the site looks "
-            "finished while it fails.\n\n"
-            "1. Brief: the buyer, the offer sentence, the one primary action, the proof available, the pages needed, the "
-            "constraints (brand, accessibility, regulated-client rules), and how success is measured. No design starts "
-            "without it. 2. Sitemap and page intents from website_ia: one intent and one primary action per page. 3. Content "
-            "first: real copy from copywriting and the client's own facts. No lorem ipsum, no invented testimonials or numbers, "
-            "no stock photos posing as staff. 4. Design tokens from design_fundamentals: type scale, color tokens checked for "
-            "contrast, spacing scale, radius; components use tokens only. 5. Build mobile-first with semantic HTML on the stack "
-            "from web_stack, with JavaScript only where a feature needs it. 6. QA with site_qa_launch in a real browser at "
-            "phone, tablet and desktop widths; fix and re-check until it passes. 7. Launch and handoff: launch record, "
-            "analytics on the primary action, accounts and documentation in the client's hands.\n\n"
-            "The builder shows screenshots and QA results at each gate. Done means the checklist passes, not that it looks "
-            "good on one screen."
+            "A site is built in a fixed order of stages so it is right, then distinctive, then finished. Skip a stage and "
+            "the site looks done while it fails or looks like every template.\n\n"
+            "1. Brief and asset inventory: the buyer, the offer, the one primary action, the confirmed facts, the photos and "
+            "rights, the constraints. Matthew approves. 2. Two directions: two genuinely different looks on one board, with "
+            "a recommendation. Matthew picks. 3. Sitemap and copy: one intent per page, real words, no invented proof. Matthew "
+            "approves. 4. Rendered sample: the hero and the next section, with real copy and the real picture, as phone and "
+            "desktop screenshots. Matthew approves the look. 5. Full build with the approved tokens. 6. Review: screenshots, "
+            "the rubric, fix the three weakest things, confirm once. 7. Handoff with the QA results and the launch record.\n\n"
+            "Each stage has its own topic in the website craft graph (site_stage_brief through site_stage_handoff); look up "
+            "only the current stage. Gates are recorded in the project's state file. Done means the checks pass and Matthew "
+            "approved the look, not that it looks good on one screen."
         ),
     },
     {
@@ -336,10 +334,13 @@ NEW_NODES = [
             "spacing scale used everywhere; related things sit closer than unrelated things. Shape: one corner-radius family. "
             "Hierarchy: one primary button style, and the primary action looks the same on every page.\n\n"
             "Images: the client's real photos of real people and places beat stock. Never use AI-generated images of fake "
-            "staff, customers or results. Size and compress every image for its slot.\n\n"
-            "Avoid template tells: carousels, 'Welcome to' headlines, auto-playing video behind text, parallax, centered "
-            "paragraphs of body text, more than two button styles, icons used as decoration. Design for the phone first, then "
-            "widen. When unsure, choose the simpler option and check it against accessibility and performance_budget."
+            "staff, customers, premises, work or results. Size and compress every image for its slot.\n\n"
+            "Avoid template tells: carousels, 'Welcome to' headlines, background video without a poster image, a pause "
+            "button and a scrim, parallax, centered paragraphs of body text, more than two button styles, icons used as "
+            "decoration. Design for the phone first, then widen.\n\n"
+            "These rules keep a site consistent; they do not make it distinctive. The craft of a distinctive site (art "
+            "direction, type pairing, color systems, hero compositions, pictures, motion and the review rubric) lives in "
+            "the website craft graph."
         ),
     },
     {
@@ -534,6 +535,9 @@ USAGE_ADDENDUM = (
 )
 
 CHANGELOG = (
+    "1.2.1 (2026-10-10): website_build_process now follows the staged, gated process of the website craft graph "
+    "(two directions and a rendered sample before the full build); design_fundamentals points to that graph for craft "
+    "and allows background video only with a poster, a pause button and a scrim. "
     "1.2 turns the advisory graph into a manager's graph. Adds a business profile, the manager's operating rhythm and "
     "decision rights, cash flow, project delivery, scope control, capacity, CRM upkeep, speed to lead, local visibility, "
     "reviews, managed AI delivery, rules for regulated clients, and five website-building nodes (build process, design, "
@@ -547,7 +551,7 @@ CHANGELOG = (
 def build() -> dict:
     graph = json.loads(SOURCE.read_text(encoding="utf-8"))
     meta = graph["graph_meta"]
-    meta["version"] = "1.2"
+    meta["version"] = "1.2.1"
     meta["purpose"] = (
         "Retrieval graph that lets an LLM operate as a practical business manager for a small studio: running the week, "
         "sales, marketing, delivery, cash, local visibility, websites, writing and customer service."

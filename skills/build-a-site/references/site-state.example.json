@@ -1,0 +1,20 @@
+{
+  "client": "Ridgewood Bike Works (fictional practice client)",
+  "stage": "sample",
+  "approvals": {
+    "brief": {"by": "Matthew", "when": "2026-10-12", "what": "brief.md v2"},
+    "direction": {"by": "Matthew", "when": "2026-10-12", "what": "direction.md, route B"},
+    "copy": {"by": "Matthew", "when": "2026-10-13", "what": "sitemap.md and content/ v1"}
+  },
+  "decisions": {
+    "route": "B, the workbench",
+    "dials": {"variance": 6, "motion": 3, "density": 5},
+    "type": "Barlow Condensed + Barlow",
+    "primary_action": "Book a tune-up",
+    "hero": "isolated object: one chain ring on dark steel"
+  },
+  "open": [
+    "Owner photo: Matthew is asking the client",
+    "Confirm the e-bike diagnostic price"
+  ]
+}
